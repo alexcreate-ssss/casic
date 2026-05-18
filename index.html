@@ -10,7 +10,7 @@
 <body>
 
     <div class="app-header">
-        <div class="logo">💎 TON NFT RUN <span class="version">v6.0</span></div>
+        <div class="logo">💎 TON NFT RUN <span class="version">v6.5</span></div>
         <div class="balance-container">
             <span class="balance-val" id="user-balance">15.50</span>
             <span class="currency">TON</span>
@@ -42,10 +42,12 @@
             </div>
 
             <div class="upg-center">
-                <div class="upgrade-status-box">
-                    <div class="status-arrow">▲</div>
-                    <div class="status-percent" id="wheel-percent-center">50%</div>
-                    <div class="status-label">ШАНС</div>
+                <div class="wheel-box">
+                    <canvas id="upgrade-canvas" width="130" height="130"></canvas>
+                    <div class="wheel-content">
+                        <span id="wheel-percent-center">50%</span>
+                        <small>ШАНС</small>
+                    </div>
                 </div>
                 <button class="btn-action-main" id="btn-start-upgrade" onclick="executeUpgrade()">
                     ⚡ УЛУЧШИТЬ
@@ -66,12 +68,11 @@
 
         <div class="controls-card">
             <div class="slider-header">
-                <span>Вероятность успеха</span>
+                <span>Вероятность успеха:</span>
                 <span class="chance-display" id="chance-text">50.00%</span>
             </div>
-            <input type="range" min="1" max="95" value="50" class="neon-slider" id="chance-slider" oninput="handleSliderInput(this.value)">
             
-            <div class="quick-buttons">
+            <div class="quick-buttons" style="margin-top: 10px;">
                 <button class="q-btn" onclick="setQuickMultiplier(2)">x2</button>
                 <button class="q-btn" onclick="setQuickMultiplier(4)">x4</button>
                 <button class="q-btn" onclick="setQuickMultiplier(8)">x8</button>
@@ -142,11 +143,11 @@
     <div id="inventory-screen" class="screen">
         <div class="stats-dashboard">
             <div class="stat-box">
-                <span class="stat-label">ТОП ДРОП ЗА ВСЁ ВРЕМЯ 🏆</span>
+                <span class="stat-label">🏆 ТОП ДРОП ЗА ВСЁ ВРЕМЯ</span>
                 <span class="stat-value" id="stats-best-drop" style="color:var(--neon-blue)">Нет наград</span>
             </div>
             <div class="stat-box">
-                <span class="stat-label">СТОИМОСТЬ РАКЗУКА 💰</span>
+                <span class="stat-label">💰 СТОИМОСТЬ РАКЗУКА</span>
                 <span class="stat-value" id="stats-total-value" style="color:var(--neon-gold)">0.00 TON</span>
             </div>
         </div>
@@ -171,14 +172,14 @@
             <h2 style="color: var(--neon-blue); margin: 0 0 10px 0;">👛 ПОПОЛНЕНИЕ БАЛАНСА</h2>
             <p style="color:var(--text-muted); font-size:12px; margin-bottom:20px;">Выберите удобный метод оплаты для зачисления средств</p>
             
-            <div class="deposit-method-card" style="background: var(--bg-panel); border: 1px solid #1c1735; padding:15px; border-radius:14px; margin-bottom:12px; text-align:left;">
+            <div class="deposit-method-card" style="background: var(--bg-panel); padding:15px; border-radius:14px; margin-bottom:12px; text-align:left;">
                 <h4 style="color:#fff; margin-bottom:4px;">💎 Метод 1: Пополнение TON кошельком</h4>
                 <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:8px;">Прямой перевод на адрес системы:</span>
                 <code style="font-size:10px; color:var(--neon-green); word-break:break-all; background:#0b0815; padding:6px; border-radius:6px; display:block; margin-bottom:10px;">UQAz_TON_CASIC_GAME_PRO_PRODUCTION_ADDRESS_🔥</code>
                 <button class="q-btn" style="width:100%; color:#fff; background:#0088cc; border:none; padding:8px 0;" onclick="tg.sendData('request_ton_invoice')">Подключить Tonkeeper</button>
             </div>
 
-            <div class="deposit-method-card" style="background: var(--bg-panel); border: 1px solid #1c1735; padding:15px; border-radius:14px; text-align:left;">
+            <div class="deposit-method-card" style="background: var(--bg-panel); padding:15px; border-radius:14px; text-align:left;">
                 <h4 style="color:var(--neon-gold); margin-bottom:4px;">⭐ Метод 2: Пополнение через Telegram Stars</h4>
                 <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:8px;">Мгновенное списание звезд с вашего аккаунта Telegram</span>
                 <button class="q-btn" style="width:100%; color:#000; background:linear-gradient(135deg, #ffb700, #ffa200); border:none; padding:8px 0;" onclick="tg.sendData('deposit_via_stars')">Оплатить Звездами ⭐</button>
