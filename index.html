@@ -2,210 +2,190 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TON Neon Casino</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TON NFT UPGRADE & CASINO PRO</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #0f0c1b, #241442);
-            color: #fff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 90vh;
-            overflow-x: hidden;
-        }
-
-        h1 {
-            color: #00f2fe;
-            text-shadow: 0 0 10px #00f2fe, 0 0 20px #4facfe;
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .welcome {
-            font-size: 14px;
-            color: #a29bfe;
-            margin-bottom: 25px;
-        }
-
-        /* Карточки/Контейнеры */
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 242, 254, 0.2);
-            border-radius: 16px;
-            padding: 20px;
-            width: 90%;
-            max-width: 350px;
-            text-align: center;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            backdrop-filter: blur(4px);
-            margin-bottom: 20px;
-        }
-
-        .balance-title {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #bdbdbd;
-        }
-
-        .balance-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #00ff87;
-            text-shadow: 0 0 10px rgba(0, 255, 135, 0.5);
-            margin: 10px 0;
-        }
-
-        /* Кнопки */
-        .btn {
-            background: linear-gradient(45deg, #00f2fe, #4facfe);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            padding: 14px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin: 10px 0;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-upgrade {
-            background: linear-gradient(45deg, #f857a6, #ff5858);
-            box-shadow: 0 4px 15px rgba(248, 87, 166, 0.4);
-        }
-
-        /* Анимация кручения/открытия бокса */
-        .gift-box {
-            font-size: 60px;
-            margin: 20px 0;
-            transition: transform 0.5s ease;
-            cursor: pointer;
-        }
-
-        .spin-animation {
-            animation: shake 0.5s infinite;
-        }
-
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(0px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(2px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(2px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        
-        .status-text {
-            font-size: 14px;
-            color: #00ff87;
-            min-height: 20px;
-            font-weight: 500;
-        }
-    </style>
 </head>
 <body>
 
-    <h1>💎 NEON CASINO 💎</h1>
-    <div class="welcome" id="welcome-user">Удачи, Игрок!</div>
-
-    <div class="card">
-        <div class="balance-title">Игровой баланс</div>
-        <div class="balance-value" id="balance">1.00 TON</div>
-        <div class="status-text" id="status"></div>
+    <div class="app-header">
+        <div class="logo">💎 TON NFT RUN <span class="version">v6.0</span></div>
+        <div class="balance-container">
+            <span class="balance-val" id="user-balance">15.50</span>
+            <span class="currency">TON</span>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="balance-title">Уровень удачи: <span id="luck-lvl" style="color:#f857a6">1</span></div>
-        <div class="gift-box" id="box" onclick="playGame()">🎁</div>
-        <button class="btn" onclick="playGame()">Открыть Подарок (0.1 TON)</button>
-        <button class="btn btn-upgrade" onclick="upgradeLuck()">⚡ Апгрейд подарков (+Удача)</button>
+    <div class="tabs-nav">
+        <button class="tab-btn active" id="tab-upg" onclick="switchTab('upgrade')">⚡ АПГРЕЙД</button>
+        <button class="tab-btn" id="tab-cases" onclick="switchTab('cases')">📦 КЕЙСЫ</button>
+        <button class="tab-btn" id="tab-inv" onclick="switchTab('inventory')">🎒 ИНВЕНТАРЬ</button>
+        <button class="tab-btn" id="tab-dep" onclick="switchTab('deposit')">👛 КАССА</button>
     </div>
 
-    <script>
-        // Инициализация Telegram WebApp API
-        const tg = window.Telegram.WebApp;
-        tg.expand(); // Открываем на весь экран смартфона
+    <div id="upgrade-screen" class="screen active">
+        <div class="upgrade-container">
+            <div class="upg-panel" id="panel-source">
+                <div class="panel-title">ТВОЙ NFT ДЕПОЗИТ</div>
+                <div class="skin-placeholder" id="source-placeholder">
+                    <div class="plus-icon">+</div>
+                    <span>Выбери депо ниже</span>
+                </div>
+                <div class="active-skin-card" id="source-card" style="display: none;">
+                    <div class="nft-img-wrapper" id="source-rarity-bg">
+                        <img src="" id="source-img" alt="nft">
+                    </div>
+                    <div class="skin-name" id="source-name">NFT</div>
+                    <div class="skin-price" id="source-price">0.00 TON</div>
+                </div>
+            </div>
 
-        // Пытаемся взять имя юзера из телеграма
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('welcome-user').innerText = `Удачи, @${tg.initDataUnsafe.user.username}!`;
-        }
+            <div class="upg-center">
+                <div class="upgrade-status-box">
+                    <div class="status-arrow">▲</div>
+                    <div class="status-percent" id="wheel-percent-center">50%</div>
+                    <div class="status-label">ШАНС</div>
+                </div>
+                <button class="btn-action-main" id="btn-start-upgrade" onclick="executeUpgrade()">
+                    ⚡ УЛУЧШИТЬ
+                </button>
+            </div>
 
-        // Локальные переменные игры (в идеале синхронизировать с бэком)
-        let balance = 1.00;
-        let luckLvl = 1;
+            <div class="upg-panel clickable-target" id="panel-target" onclick="openTargetSelectorModal()">
+                <div class="panel-title">ЦЕЛЬ АПГРЕЙДА ⚙️</div>
+                <div class="active-skin-card" id="target-card">
+                    <div class="nft-img-wrapper rarity-cov">
+                        <img src="https://nft.fragment.com/avatar/4b69ff.svg" id="target-img" alt="nft">
+                    </div>
+                    <div class="skin-name" id="target-name">Выбрать цель</div>
+                    <div class="skin-price" id="target-price">0.00 TON</div>
+                </div>
+            </div>
+        </div>
 
-        function playGame() {
-            if (balance < 0.1) {
-                document.getElementById('status').style.color = '#ff5858';
-                document.getElementById('status').innerText = "❌ Недостаточно TON!";
-                tg.HapticFeedback.notificationOccurred("error"); // Виброотклик в ТГ
-                return;
-            }
-
-            balance -= 0.1;
-            updateUI();
+        <div class="controls-card">
+            <div class="slider-header">
+                <span>Вероятность успеха</span>
+                <span class="chance-display" id="chance-text">50.00%</span>
+            </div>
+            <input type="range" min="1" max="95" value="50" class="neon-slider" id="chance-slider" oninput="handleSliderInput(this.value)">
             
-            const box = document.getElementById('box');
-            box.classList.add('spin-animation');
-            document.getElementById('status').innerText = "Открытие бокса...";
+            <div class="quick-buttons">
+                <button class="q-btn" onclick="setQuickMultiplier(2)">x2</button>
+                <button class="q-btn" onclick="setQuickMultiplier(4)">x4</button>
+                <button class="q-btn" onclick="setQuickMultiplier(8)">x8</button>
+                <button class="q-btn" onclick="setQuickPercent(30)">30%</button>
+                <button class="q-btn" onclick="setQuickPercent(50)">50%</button>
+                <button class="q-btn" onclick="setQuickPercent(75)">75%</button>
+            </div>
+        </div>
 
-            setTimeout(() => {
-                box.classList.remove('spin-animation');
-                
-                // Расчет выигрыша с учетом уровня удачи
-                let chance = 0.3 + (luckLvl * 0.05);
-                if (Math.random() < chance) {
-                    let win = Math.round((Math.random() * 0.4 + 0.15) * 100) / 100;
-                    balance += win;
-                    document.getElementById('status').style.color = '#00ff87';
-                    document.getElementById('status').innerText = `🎉 Выпало: +${win} TON!`;
-                    tg.HapticFeedback.notificationOccurred("success");
-                } else {
-                    document.getElementById('status').style.color = '#ff5858';
-                    document.getElementById('status').innerText = "💀 Пустой подарок...";
-                    tg.HapticFeedback.notificationOccurred("warning");
-                }
-                updateUI();
-            }, 800);
-        }
+        <div class="inventory-section">
+            <div class="section-title">Выбрать NFT для апгрейда:</div>
+            <div class="inventory-grid" id="player-upgrade-inventory-grid"></div>
+        </div>
+    </div>
 
-        function upgradeLuck() {
-            let cost = luckLvl * 0.5;
-            if (balance < cost) {
-                alert(`Для апгрейда нужно ${cost} TON!`);
-                return;
-            }
-            balance -= cost;
-            luckLvl += 1;
-            document.getElementById('status').style.color = '#00f2fe';
-            document.getElementById('status').innerText = `⚡ Удача прокачана до Lvl ${luckLvl}!`;
-            tg.HapticFeedback.impactOccurred("heavy");
-            updateUI();
-        }
+    <div class="modal-overlay" id="target-modal" onclick="closeTargetSelectorModal(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Выберите желаемый NFT</h4>
+                <span class="close-modal-btn" onclick="document.getElementById('target-modal').style.display='none'">&times;</span>
+            </div>
+            <div class="target-selection-grid" id="modal-targets-grid"></div>
+        </div>
+    </div>
 
-        function updateUI() {
-            document.getElementById('balance').innerText = `${balance.toFixed(2)} TON`;
-            document.getElementById('luck-lvl').innerText = luckLvl;
-        }
-    </script>
+    <div class="modal-overlay" id="win-modal">
+        <div class="modal-content win-modal-content">
+            <h3 style="color:var(--neon-green); text-align:center; margin-bottom:15px;">🎉 ОТЛИЧНЫЙ ДРОП!</h3>
+            <div id="win-modal-items-container" class="win-items-scroll-grid"></div>
+            <div class="win-modal-actions">
+                <button class="win-act-btn btn-sell" id="modal-win-sell-btn" onclick="processWinModalAction('sell')">Продать всё за <span id="win-modal-sell-price">0.00</span> TON</button>
+                <button class="win-act-btn btn-upg" id="modal-win-upg-btn" onclick="processWinModalAction('upgrade')">⚡ В Апгрейд</button>
+                <button class="win-act-btn btn-keep" onclick="processWinModalAction('keep')">🎒 В инвентарь</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cases-screen" class="screen">
+        <div class="controls-card" id="cases-selection-view">
+            <div class="section-title" style="margin-bottom:15px; text-align:center;">ВЫБЕРИТЕ NFT КЕЙС</div>
+            <div class="cases-list-grid" id="cases-list-container"></div>
+        </div>
+
+        <div class="controls-card" id="current-case-view" style="display:none;">
+            <div class="case-header-actions">
+                <button class="q-btn" style="width:70px;" onclick="backToCasesList()">◀ Назад</button>
+                <div class="multi-open-selector">
+                    <button class="m-btn active" id="m-btn-1" onclick="setMultiOpenCount(1)">x1</button>
+                    <button class="m-btn" id="m-btn-2" onclick="setMultiOpenCount(2)">x2</button>
+                    <button class="m-btn" id="m-btn-3" onclick="setMultiOpenCount(3)">x3</button>
+                    <button class="m-btn" id="m-btn-4" onclick="setMultiOpenCount(4)">x4</button>
+                </div>
+            </div>
+            
+            <h3 id="active-case-title" style="text-align:center; color:var(--neon-blue); margin: 10px 0;">Кейс</h3>
+            
+            <div id="multi-roulettes-container"></div>
+
+            <button class="btn-action-main" id="btn-open-case" style="background:var(--neon-green); margin: 15px 0;" onclick="openActiveCase()">Открыть за <span id="case-open-price">0.00</span> TON</button>
+            
+            <div class="case-loot-preview-section">
+                <div class="section-title" style="border-top: 1px solid #1c1735; padding-top: 15px; text-align: center;">ДОСТУПНЫЕ ПОДАРКИ В КЕЙСЕ:</div>
+                <div class="loot-preview-grid" id="case-loot-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="inventory-screen" class="screen">
+        <div class="stats-dashboard">
+            <div class="stat-box">
+                <span class="stat-label">ТОП ДРОП ЗА ВСЁ ВРЕМЯ 🏆</span>
+                <span class="stat-value" id="stats-best-drop" style="color:var(--neon-blue)">Нет наград</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">СТОИМОСТЬ РАКЗУКА 💰</span>
+                <span class="stat-value" id="stats-total-value" style="color:var(--neon-gold)">0.00 TON</span>
+            </div>
+        </div>
+
+        <div class="inventory-actions-row">
+            <button class="inv-action-btn sell-all-btn" onclick="sellAllInventoryItems()">💰 Продать весь инвентарь</button>
+        </div>
+
+        <div class="inventory-section" style="flex:1;">
+            <div class="section-title">Ваши предметы в системе:</div>
+            <div class="inventory-grid full-inv-grid" id="main-player-inventory-grid"></div>
+        </div>
+
+        <div class="controls-card" style="margin-top:12px; flex: 0 0 130px; display:flex; flex-direction:column;">
+            <div class="section-title" style="margin-bottom:5px;">📋 ИСТОРИЯ ПОСЛЕДНИХ ДРОПОВ</div>
+            <div class="history-list-log" id="history-log-container"></div>
+        </div>
+    </div>
+
+    <div id="deposit-screen" class="screen">
+        <div class="controls-card" style="text-align: center; padding: 20px 15px;">
+            <h2 style="color: var(--neon-blue); margin: 0 0 10px 0;">👛 ПОПОЛНЕНИЕ БАЛАНСА</h2>
+            <p style="color:var(--text-muted); font-size:12px; margin-bottom:20px;">Выберите удобный метод оплаты для зачисления средств</p>
+            
+            <div class="deposit-method-card" style="background: var(--bg-panel); border: 1px solid #1c1735; padding:15px; border-radius:14px; margin-bottom:12px; text-align:left;">
+                <h4 style="color:#fff; margin-bottom:4px;">💎 Метод 1: Пополнение TON кошельком</h4>
+                <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:8px;">Прямой перевод на адрес системы:</span>
+                <code style="font-size:10px; color:var(--neon-green); word-break:break-all; background:#0b0815; padding:6px; border-radius:6px; display:block; margin-bottom:10px;">UQAz_TON_CASIC_GAME_PRO_PRODUCTION_ADDRESS_🔥</code>
+                <button class="q-btn" style="width:100%; color:#fff; background:#0088cc; border:none; padding:8px 0;" onclick="tg.sendData('request_ton_invoice')">Подключить Tonkeeper</button>
+            </div>
+
+            <div class="deposit-method-card" style="background: var(--bg-panel); border: 1px solid #1c1735; padding:15px; border-radius:14px; text-align:left;">
+                <h4 style="color:var(--neon-gold); margin-bottom:4px;">⭐ Метод 2: Пополнение через Telegram Stars</h4>
+                <span style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:8px;">Мгновенное списание звезд с вашего аккаунта Telegram</span>
+                <button class="q-btn" style="width:100%; color:#000; background:linear-gradient(135deg, #ffb700, #ffa200); border:none; padding:8px 0;" onclick="tg.sendData('deposit_via_stars')">Оплатить Звездами ⭐</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
