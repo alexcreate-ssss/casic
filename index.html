@@ -7,14 +7,14 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-main: #07050f;
-            --bg-card: #0f0b21;
-            --bg-panel: #15102a;
+            --bg-main: #0c0a14;
+            --bg-card: #131022;
+            --bg-panel: #1a1630;
             --neon-blue: #00f2fe;
             --neon-pink: #f857a6;
             --neon-green: #00ff87;
             --neon-gold: #ffb700;
-            --text-muted: #625c7e;
+            --text-muted: #575273;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -22,102 +22,94 @@
 
         /* Шапка */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; }
-        .logo { font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; background: linear-gradient(90deg, #fff, var(--neon-blue)); -webkit-text-fill-color: transparent; }
-        .balance-container { background: rgba(0, 255, 135, 0.1); border: 1px solid rgba(0, 255, 135, 0.2); padding: 6px 14px; border-radius: 20px; font-weight: bold; }
+        .logo { font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; background: linear-gradient(90deg, #fff, var(--neon-blue)); -webkit-text-fill-color: transparent; }
+        .balance-container { background: rgba(0, 255, 135, 0.1); border: 1px solid rgba(0, 255, 135, 0.2); padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; }
         .balance-val { color: var(--neon-green); }
 
         /* Табы */
-        .tabs-nav { display: flex; background: var(--bg-card); border-radius: 12px; padding: 4px; margin-bottom: 12px; gap: 4px; }
-        .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 12px 0; font-weight: bold; font-size: 11px; cursor: pointer; border-radius: 8px; transition: all 0.2s; text-transform: uppercase; }
-        .tab-btn.active { background: var(--bg-panel); color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 242, 254, 0.15); }
+        .tabs-nav { display: flex; background: var(--bg-card); border-radius: 12px; padding: 4px; margin-bottom: 10px; gap: 4px; }
+        .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 10px 0; font-weight: bold; font-size: 11px; cursor: pointer; border-radius: 8px; transition: all 0.2s; text-transform: uppercase; }
+        .tab-btn.active { background: var(--bg-panel); color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 242, 254, 0.1); }
 
         .screen { display: none; flex-direction: column; flex-grow: 1; }
         .screen.active { display: flex; }
 
-        /* ================= ЭКРАН АПГРЕЙДА (ПОЛ ЭКРАНА) ================= */
-        .upgrade-split-layout { display: flex; flex-direction: column; flex-grow: 1; gap: 6px; position: relative; }
+        /* ================= ВЕРХНЯЯ ЗОНА: РУЛЕТКА И КНОПКА ================= */
+        .upgrade-top-area { background: var(--bg-card); border-radius: 16px; padding: 15px; display: flex; flex-direction: column; align-items: center; position: relative; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.01); }
         
-        .upg-half { flex: 1; background: var(--bg-card); border-radius: 16px; border: 1px solid rgba(255,255,255,0.02); padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; min-height: 160px; }
-        .upg-half .half-label { position: absolute; top: 10px; left: 12px; font-size: 10px; font-weight: bold; color: var(--text-muted); letter-spacing: 1px; }
+        .upg-center-ring { position: relative; width: 130px; height: 130px; background: var(--bg-main); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .ring-canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
+        .ring-preview-img { width: 70px; height: 70px; object-fit: contain; z-index: 2; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); transition: transform 0.2s; }
         
-        /* Кольцо управления по центру */
-        .upg-center-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; width: 110px; height: 110px; background: var(--bg-main); border-radius: 50%; border: 4px solid var(--bg-panel); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(0,0,0,0.6); }
-        .ring-canvas { position: absolute; width: 100%; height: 100%; }
-        .ring-btn { position: relative; z-index: 12; width: 84px; height: 84px; background: linear-gradient(135deg, var(--neon-blue), #0072ff); border: none; border-radius: 50%; color: #fff; font-weight: 900; font-size: 11px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4); text-transform: uppercase; }
-        .ring-btn:active { transform: scale(0.95); }
-
-        /* Отображение предметов в апгрейде */
-        .upg-item-view { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; max-width: 200px; }
-        .upg-item-view img { width: 75px; height: 75px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5)); }
-        .upg-item-name { font-size: 13px; font-weight: bold; color: #fff; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        .upg-item-price { font-size: 12px; color: var(--neon-gold); font-weight: bold; }
-
-        .placeholder-text { color: #322c4d; font-size: 12px; font-weight: 500; text-align: center; }
-        .clickable-target { cursor: pointer; transition: background 0.2s; }
-        .clickable-target:hover { background: #130e2b; }
-
-        .chance-badge { position: absolute; bottom: 10px; right: 12px; background: rgba(0, 255, 137, 0.1); border: 1px solid rgba(0, 255, 137, 0.2); padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; color: var(--neon-green); }
-
-        .upg-selectors-area { background: var(--bg-card); border-radius: 16px; padding: 12px; margin-top: 8px; }
-        .grid-six { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 10px; }
-        .mini-btn { background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.03); color: #aaa; border-radius: 6px; padding: 8px 0; font-size: 10px; font-weight: bold; cursor: pointer; text-align: center; }
+        .chance-badge { background: rgba(0, 255, 137, 0.1); border: 1px solid rgba(0, 255, 137, 0.2); padding: 5px 14px; border-radius: 20px; font-size: 14px; font-weight: bold; color: var(--neon-green); margin-bottom: 12px; }
         
-        .horizontal-scroller { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; max-height: 110px; }
-        .scroller-cell { flex: 0 0 75px; aspect-ratio: 1/1; background: var(--bg-panel); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px; position: relative; border: 2px solid transparent; }
-        .scroller-cell img { width: 70%; height: 70%; object-fit: contain; }
-        .scroller-cell.selected { border-color: var(--neon-blue); background: #191437; }
+        .action-controls-row { display: flex; width: 100%; gap: 6px; align-items: center; }
+        .ring-btn { flex: 2; background: linear-gradient(135deg, var(--neon-blue), #0072ff); border: none; padding: 14px; border-radius: 12px; color: #fff; font-weight: 900; font-size: 13px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3); text-transform: uppercase; letter-spacing: 1px; }
+        .ring-btn:active { transform: scale(0.98); }
+        
+        .grid-multipliers { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+        .mini-btn { background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.03); color: #aaa; border-radius: 8px; padding: 12px 0; font-size: 10px; font-weight: bold; cursor: pointer; text-align: center; }
 
-        /* ================= ЭКРАН КЕЙСОВ ================= */
+        /* ================= НИЖНЯЯ ЗОНА: ИДЕАЛЬНЫЙ СПЛИТ НА ПОЛ-ЭКРАНА ================= */
+        .upgrade-bottom-split { display: flex; gap: 8px; flex-grow: 1; height: 320px; }
+        
+        .split-column { flex: 1; background: var(--bg-card); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.01); width: 50%; }
+        .column-header { font-size: 10px; font-weight: bold; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px; }
+        
+        /* Скролл-контейнеры для гридов внутри половинок */
+        .column-grid-scroll { flex-grow: 1; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-content: start; padding-right: 2px; }
+        
+        /* Компактные карточки для сплит-экрана */
+        .split-card { background: var(--bg-panel); border-radius: 10px; padding: 8px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid transparent; cursor: pointer; transition: all 0.15s; }
+        .split-card img { width: 42px; height: 42px; object-fit: contain; margin-bottom: 4px; }
+        .split-card h5 { font-size: 9px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; margin-bottom: 2px; }
+        .split-card span { font-size: 9px; color: var(--neon-gold); font-weight: bold; }
+        
+        .split-card.selected-src { border-color: var(--neon-pink); background: rgba(248, 87, 166, 0.05); }
+        .split-card.selected-tar { border-color: var(--neon-blue); background: rgba(0, 242, 254, 0.05); }
+
+        /* Экраны Кейсов, Сумки и Кассы */
         .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .case-card { background: var(--bg-card); border-radius: 14px; padding: 12px; text-align: center; cursor: pointer; border: 1px solid transparent; }
-        .case-card img { width: 75px; height: 75px; object-fit: contain; margin-bottom: 8px; }
-        .case-card h4 { font-size: 13px; margin-bottom: 4px; color: #fff; }
-        .case-card p { font-size: 11px; color: var(--neon-gold); font-weight: bold; }
-
-        .arena-view { display: none; background: var(--bg-card); border-radius: 16px; padding: 12px; flex-direction: column; }
-        .arena-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .case-card { background: var(--bg-card); border-radius: 14px; padding: 12px; text-align: center; cursor: pointer; }
+        .case-card img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 6px; }
         
-        /* Холст многопоточного открытия */
+        .arena-view { display: none; background: var(--bg-card); border-radius: 16px; padding: 12px; flex-direction: column; }
         .canvas-container { background: #04030a; border: 2px solid var(--bg-panel); border-radius: 12px; overflow: hidden; position: relative; width: 100%; margin-bottom: 12px; }
         #cases-canvas { display: block; width: 100%; height: 240px; }
 
-        /* ================= ЭКРАН ИНВЕНТАРЯ ================= */
-        .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow-y: auto; max-height: 380px; padding-bottom: 10px; }
-        .inv-card { background: var(--bg-card); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; position: relative; text-align: center; border-bottom: 3px solid #fff; }
-        .inv-card img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 6px; }
+        .inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; overflow-y: auto; max-height: 400px; }
+        .inv-card { background: var(--bg-card); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; text-align: center; border-bottom: 3px solid #fff; }
+        .inv-card img { width: 50px; height: 50px; object-fit: contain; margin-bottom: 4px; }
         .inv-card h5 { font-size: 10px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        .inv-card .price { font-size: 10px; color: var(--neon-gold); font-weight: bold; margin: 2px 0 6px 0; }
-        .inv-actions { display: flex; width: 100%; gap: 4px; }
-        .inv-sub-btn { flex: 1; border: none; padding: 5px 0; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-        .btn-sell-action { background: rgba(248, 87, 166, 0.15); color: var(--neon-pink); }
-        .btn-out-action { background: rgba(0, 255, 135, 0.15); color: var(--neon-green); }
+        .inv-card .price { font-size: 10px; color: var(--neon-gold); font-weight: bold; margin-bottom: 4px; }
+        .inv-sub-btn { width: 100%; border: none; padding: 5px 0; font-size: 9px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 2px; }
 
-        /* Раритеты */
         .r-mil { border-bottom-color: #5e98d9; }
         .r-rest { border-bottom-color: #00f2fe; }
         .r-class { border-bottom-color: #b230ff; }
         .r-cov { border-bottom-color: #eb4b4b; }
 
-        /* ================= МОДАЛКА ВЫИГРЫША ================= */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(3,2,7,0.95); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .modal-body { background: var(--bg-card); border: 1px solid var(--bg-panel); border-radius: 20px; padding: 20px; width: 100%; max-width: 360px; text-align: center; }
+        .modal-body { background: var(--bg-card); border-radius: 20px; padding: 20px; width: 100%; max-width: 360px; text-align: center; }
         .win-title { color: var(--neon-green); font-size: 18px; font-weight: 900; margin-bottom: 15px; }
-        .win-flex { display: flex; gap: 8px; overflow-x: auto; justify-content: center; padding: 10px 0; margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .win-flex { display: flex; gap: 8px; overflow-x: auto; justify-content: center; padding: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.2); border-radius: 10px; }
         .win-node { flex: 0 0 80px; background: var(--bg-panel); padding: 6px; border-radius: 8px; font-size: 9px; }
         .win-node img { width: 40px; height: 40px; object-fit: contain; }
         .main-btn { width: 100%; background: linear-gradient(90deg, var(--neon-green), #00cb62); border: none; padding: 12px; border-radius: 10px; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 12px; }
 
-        /* Оплата счета встроенная шторка */
-        .invoice-sheet { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-card); border-top: 2px solid var(--bg-panel); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; z-index: 200; box-shadow: 0 -10px 30px rgba(0,0,0,0.8); }
-        .invoice-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; color: #ccc; }
+        .invoice-sheet { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-card); border-top: 2px solid var(--bg-panel); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; z-index: 200; }
+        .invoice-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; }
 
-        /* Админка */
-        .admin-panel { display: none; background: rgba(248, 87, 166, 0.03); border: 1px dashed var(--neon-pink); border-radius: 16px; padding: 12px; margin-top: 15px; }
+        .admin-panel { display: none; background: rgba(248, 87, 166, 0.02); border: 1px dashed var(--neon-pink); border-radius: 16px; padding: 12px; margin-top: 15px; }
         .admin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 8px; }
         .admin-btn { background: #201128; border: 1px solid var(--neon-pink); color: #fff; padding: 6px 0; font-size: 9px; font-weight: bold; border-radius: 6px; cursor: pointer; }
 
         .disabled { opacity: 0.3; pointer-events: none; }
+        
+        /* Скроллбары для красоты */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-panel); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -137,135 +129,96 @@
     </div>
 
     <div id="screen-upg" class="screen active">
-        <div class="upgrade-split-layout">
-            
-            <div class="upg-half" id="half-source">
-                <span class="half-label">ТВОЙ ДЕПОЗИТ</span>
-                <div class="placeholder-text" id="src-placeholder">◀ ВЫБЕРИ ПРЕДМЕТ ИЗ СПИСКА НИЖЕ</div>
-                <div class="upg-item-view" id="src-view" style="display: none;">
-                    <img src="" id="src-img">
-                    <div class="upg-item-name" id="src-name">Item</div>
-                    <div class="upg-item-price" id="src-price">0.00 TON</div>
-                </div>
-            </div>
-
+        
+        <div class="upgrade-top-area">
             <div class="upg-center-ring">
-                <canvas class="ring-canvas" id="ring-canvas" width="110" height="110"></canvas>
-                <button class="ring-btn" id="ring-action-btn" onclick="startUpgradeProcess()">⚡ УЛУЧШИТЬ</button>
+                <canvas class="ring-canvas" id="ring-canvas" width="130" height="130"></canvas>
+                <img src="https://nft.fragment.com/avatar/4b69ff.svg" class="ring-preview-img" id="ring-target-preview">
             </div>
-
-            <div class="upg-half clickable-target" id="half-target" onclick="openTargetSelectionModal()">
-                <span class="half-label">ЦЕЛЬ АПГРЕЙДА (КЛИКАБЕЛЬНО) ⚙️</span>
-                <div class="upg-item-view" id="tar-view">
-                    <img src="https://nft.fragment.com/avatar/4b69ff.svg" id="tar-img">
-                    <div class="upg-item-name" id="tar-name">Выбрать цель</div>
-                    <div class="upg-item-price" id="tar-price">0.00 TON</div>
+            
+            <div class="chance-badge" id="chance-badge-val">0.00%</div>
+            
+            <div class="action-controls-row">
+                <button class="ring-btn" id="ring-action-btn" onclick="startUpgradeProcess()">⚡ УЛУЧШИТЬ ПРЕДМЕТ</button>
+                <div class="grid-multipliers">
+                    <button class="mini-btn" onclick="shortcutMultiplier(2)">x2</button>
+                    <button class="mini-btn" onclick="shortcutMultiplier(5)">x5</button>
+                    <button class="mini-btn" onclick="shortcutMultiplier(10)">x10</button>
                 </div>
-                <div class="chance-badge" id="chance-badge-val">50.00%</div>
             </div>
-
         </div>
 
-        <div class="upg-selectors-area">
-            <div class="grid-six">
-                <button class="mini-btn" onclick="multiplyTarget(2)">x2</button>
-                <button class="mini-btn" onclick="multiplyTarget(4)">x4</button>
-                <button class="mini-btn" onclick="multiplyTarget(8)">x8</button>
-                <button class="mini-btn" onclick="setFixedPercent(30)">30%</button>
-                <button class="mini-btn" onclick="setFixedPercent(50)">50%</button>
-                <button class="mini-btn" onclick="setFixedPercent(75)">75%</button>
+        <div class="upgrade-bottom-split">
+            
+            <div class="split-column">
+                <div class="column-header">Мои подарки 🎒</div>
+                <div class="column-grid-scroll" id="upg-left-my-inventory"></div>
             </div>
-            <div class="horizontal-scroller" id="upg-inventory-scroller"></div>
+            
+            <div class="split-column">
+                <div class="column-header">Цели на апгрейд 🎯</div>
+                <div class="column-grid-scroll" id="upg-right-site-targets"></div>
+            </div>
+
         </div>
     </div>
 
     <div id="screen-cases" class="screen">
         <div class="cases-grid" id="cases-selector-view"></div>
-
         <div class="arena-view" id="cases-arena-view">
-            <div class="arena-header">
-                <button class="mini-btn" style="padding:6px 12px;" onclick="closeArenaView()">◀ Выйти</button>
-                <h4 id="arena-title" style="color:var(--neon-blue);">Название кейса</h4>
-                <div style="display:flex; gap:3px; background:#07050f; padding:2px; border-radius:6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <button class="mini-btn" style="padding:4px 10px;" onclick="closeArenaView()">◀ Выйти</button>
+                <h4 id="arena-title" style="color:var(--neon-blue); font-size:13px;">Кейс</h4>
+                <div style="display:flex; gap:3px;">
                     <button class="mini-btn" style="padding:4px 8px;" id="m-count-1" onclick="changeMultiCount(1)">x1</button>
                     <button class="mini-btn" style="padding:4px 8px;" id="m-count-2" onclick="changeMultiCount(2)">x2</button>
-                    <button class="mini-btn" style="padding:4px 8px;" id="m-count-3" onclick="changeMultiCount(3)">x3</button>
                     <button class="mini-btn" style="padding:4px 8px;" id="m-count-4" onclick="changeMultiCount(4)">x4</button>
                 </div>
             </div>
-
             <div class="canvas-container">
                 <canvas id="cases-canvas" width="400" height="240"></canvas>
             </div>
-
             <button class="main-btn" id="btn-trigger-case" onclick="triggerCaseOpening()">ОТКРЫТЬ КЕЙС ЗА <span id="case-action-cost">0.00</span> TON</button>
         </div>
     </div>
 
     <div id="screen-inv" class="screen">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:12px; color:var(--text-muted); font-weight:bold;">
-            <span>ВСЕГО ПРЕДМЕТОВ: <span id="inv-count-lbl" style="color:#fff">0</span></span>
-            <span>ОЦЕНКА: <span id="inv-sum-lbl" style="color:var(--neon-gold)">0.00 TON</span></span>
-        </div>
         <div class="inv-grid" id="main-inventory-dom-grid"></div>
     </div>
 
     <div id="screen-cash" class="screen">
-        <div class="upg-half" style="min-height:auto; margin-bottom:8px; text-align:left; align-items:flex-start; gap:8px;">
-            <h4 style="color:var(--neon-blue);">🌟 Магазин Telegram Stars</h4>
-            <p style="font-size:11px; color:var(--text-muted);">Быстрое зачисление игровой валюты за Звёзды</p>
-            <button class="main-btn" style="background:linear-gradient(90deg, #ffb700, #ff8800);" onclick="initiatePayment('stars', 15.00, 250)">Купить +15.00 TON за 🌟 250 Stars</button>
+        <div style="background:var(--bg-card); border-radius:12px; padding:15px; margin-bottom:10px;">
+            <h4 style="color:var(--neon-gold); margin-bottom:4px; font-size:14px;">🌟 Пополнение через Stars</h4>
+            <button class="main-btn" style="background:linear-gradient(90deg, #ffb700, #ff8800);" onclick="initiatePayment('stars', 15, 250)">Купить +15.00 TON за 🌟 250</button>
         </div>
-
-        <div class="upg-half" style="min-height:auto; text-align:left; align-items:flex-start; gap:8px;">
-            <h4 style="color:var(--neon-green);">💎 Платежная система TON</h4>
-            <p style="font-size:11px; color:var(--text-muted);">Прямая транзакция через официальный Invoice</p>
-            <button class="main-btn" style="background:linear-gradient(90deg, #0088cc, #0055ff);" onclick="initiatePayment('ton', 50.00, 0)">Пополнить +50.00 TON через CryptoPay</button>
+        <div style="background:var(--bg-card); border-radius:12px; padding:15px;">
+            <h4 style="color:var(--neon-blue); margin-bottom:4px; font-size:14px;">💎 Пополнение через TON</h4>
+            <button class="main-btn" style="background:linear-gradient(90deg, #0088cc, #0055ff);" onclick="initiatePayment('ton', 50, 0)">Пополнить +50.00 TON</button>
         </div>
-
         <div class="admin-panel" id="secret-developer-panel">
-            <h4 style="color:var(--neon-pink); font-size:11px; font-weight:bold;">🛠️ РЕЖИМ РАЗРАБОТЧИКА (БАЗА ДАННЫХ)</h4>
+            <h4 style="color:var(--neon-pink); font-size:11px;">🛠️ АДМИН-БАЗА</h4>
             <div class="admin-grid">
-                <button class="admin-btn" onclick="devBalance(100)">+100 TON</button>
-                <button class="admin-btn" onclick="devBalance(-100)">-100 TON</button>
-                <button class="admin-btn" onclick="devClearInv()">Очистить Сумку</button>
-                <button class="admin-btn" onclick="devInjectNft(5)">Выдать Durov Avatar</button>
-                <button class="admin-btn" onclick="devWipeAll()">ПОЛНЫЙ СБРОС БД</button>
+                <button class="admin-btn" onclick="devBalance(50)">+50 TON</button>
+                <button class="admin-btn" onclick="devInjectNft(4)">Дать Username</button>
+                <button class="admin-btn" onclick="devWipeAll()">Сброс</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="global-win-modal">
         <div class="modal-body">
-            <h3 class="win-title">🎉 УСПЕШНЫЙ ДРОП!</h3>
+            <h3 class="win-title">🎉 ОТЛИЧНЫЙ ДРОП!</h3>
             <div class="win-flex" id="win-modal-nodes-holder"></div>
-            <button class="main-btn" onclick="closeWinModal()">Забрать в инвентарь</button>
+            <button class="main-btn" onclick="closeWinModal()">В инвентарь</button>
         </div>
     </div>
 
     <div class="invoice-sheet" id="native-invoice-sheet">
-        <div class="invoice-header">
-            <h3 id="sheet-title">Оплата счета</h3>
-            <span style="cursor:pointer; font-size:20px; color:var(--text-muted);" onclick="closeInvoiceSheet()">&times;</span>
-        </div>
-        <div class="invoice-row">
-            <span>Продукт:</span>
-            <span id="sheet-product" style="color:#fff; font-weight:bold;">Пополнение баланса</span>
-        </div>
-        <div class="invoice-row">
-            <span>Стоимость:</span>
-            <span id="sheet-price" style="color:var(--neon-gold); font-weight:bold;">0.00</span>
-        </div>
-        <div style="margin-top:20px; display:flex; gap:8px;">
-            <button class="mini-btn" style="flex:1; padding:12px 0;" onclick="closeInvoiceSheet()">Отмена</button>
-            <button class="main-btn" style="flex:2;" onclick="simulateSuccessPayment()">Подтвердить платеж</button>
-        </div>
-    </div>
-
-    <div class="modal" id="target-selector-modal" onclick="closeTargetModalOutside(event)">
-        <div class="modal-body" style="max-height:80vh; overflow-y:auto;">
-            <h4 style="margin-bottom:15px;">Выберите желаемый NFT подарок</h4>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="target-modal-grid"></div>
+        <div class="invoice-row"><span>Продукт:</span><span id="sheet-product" style="color:#fff;">Валюта</span></div>
+        <div class="invoice-row"><span>Цена:</span><span id="sheet-price" style="color:var(--neon-gold);">0</span></div>
+        <div style="display:flex; gap:6px; margin-top:15px;">
+            <button class="mini-btn" style="flex:1;" onclick="closeInvoiceSheet()">Отмена</button>
+            <button class="main-btn" style="flex:2;" onclick="simulateSuccessPayment()">Оплатить</button>
         </div>
     </div>
 
@@ -273,58 +226,34 @@
         const tg = window.Telegram.WebApp;
         if(tg) { tg.expand(); tg.ready(); }
 
-        // ====== НАСТРОЙКА АДМИНА ======
-        const ADMIN_TELEGRAM_ID = 123456789; // ◀◀◀ Впиши сюда свой Телеграм ID
+        const ADMIN_TELEGRAM_ID = 123456789;
 
         const NFT_ITEMS = [
             { id: 0, name: "Notcoin Voucher", price: 0.80, img: "https://cache.fragment.com/nft/a/01777d85347be3fe2440be5691fd9a071d05bd63.jpg", rarity: "mil" },
             { id: 1, name: "TON Punk #2410", price: 1.50, img: "https://cache.fragment.com/nft/a/133f9157be0ca873c52e8006bf207d5d7105bd63.jpg", rarity: "mil" },
-            { id: 2, name: "Anonymous +888 0123", price: 3.20, img: "https://nft.fragment.com/number/88801234567.svg", rarity: "rest" },
-            { id: 3, name: "Whales Club #504", price: 7.00, img: "https://cache.fragment.com/nft/a/24cf9156ee1ba873c54e8006bf207d5d7105bd63.jpg", rarity: "class" },
-            { id: 4, name: "Username @durov", price: 18.50, img: "https://nft.fragment.com/username/durov.svg", rarity: "cov" },
-            { id: 5, name: "Durov's Alpha Avatar", price: 65.00, img: "https://cache.fragment.com/nft/a/77cf9156ee0ba273c54e8006bf207d5d7105bd63.jpg", rarity: "cov" }
+            { id: 2, name: "Anonymous +888", price: 3.50, img: "https://nft.fragment.com/number/88801234567.svg", rarity: "rest" },
+            { id: 3, name: "Whales Club NFT", price: 8.00, img: "https://cache.fragment.com/nft/a/24cf9156ee1ba873c54e8006bf207d5d7105bd63.jpg", rarity: "class" },
+            { id: 4, name: "Username @durov", price: 22.00, img: "https://nft.fragment.com/username/durov.svg", rarity: "cov" },
+            { id: 5, name: "Alpha Avatar", price: 70.00, img: "https://cache.fragment.com/nft/a/77cf9156ee0ba273c54e8006bf207d5d7105bd63.jpg", rarity: "cov" }
         ];
 
         const CASES = [
-            { id: 0, name: "Starter Notcoin Pack", price: 0.90, items: [0, 1], img: "https://cache.fragment.com/nft/a/01777d85347be3fe2440be5691fd9a071d05bd63.jpg" },
-            { id: 1, name: "Anonymous Mystery Box", price: 2.80, items: [0, 1, 2], img: "https://nft.fragment.com/number/88801234567.svg" },
-            { id: 2, name: "Premium Whales Pack", price: 8.50, items: [1, 2, 3, 4], img: "https://cache.fragment.com/nft/a/24cf9156ee1ba873c54e8006bf207d5d7105bd63.jpg" },
-            { id: 3, name: "Durov's VIP Сase", price: 25.00, items: [3, 4, 5], img: "https://nft.fragment.com/username/durov.svg" }
+            { id: 0, name: "Starter Notcoin Box", price: 1.00, items: [0, 1], img: "https://cache.fragment.com/nft/a/01777d85347be3fe2440be5691fd9a071d05bd63.jpg" },
+            { id: 1, name: "Anonymous Number Case", price: 3.00, items: [0, 1, 2], img: "https://nft.fragment.com/number/88801234567.svg" },
+            { id: 2, name: "Durov's VIP Pack", price: 20.00, items: [3, 4, 5], img: "https://nft.fragment.com/username/durov.svg" }
         ];
 
-        // Инициализация состояний из базы данных устройства (localStorage)
-        let balance = localStorage.getItem('arcade_balance') !== null ? parseFloat(localStorage.getItem('arcade_balance')) : 30.00;
-        let inventory = localStorage.getItem('arcade_inventory') !== null ? JSON.parse(localStorage.getItem('arcade_inventory')) : [0, 1, 0];
+        let balance = localStorage.getItem('arcade_balance') !== null ? parseFloat(localStorage.getItem('arcade_balance')) : 25.00;
+        let inventory = localStorage.getItem('arcade_inventory') !== null ? JSON.parse(localStorage.getItem('arcade_inventory')) : [0, 1, 2];
 
-        let selectedInvIndex = null;
-        let selectedTargetId = 1;
-        let currentChance = 50;
+        let selectedMyInvIndex = null; 
+        let selectedSiteTargetId = 1;  
+        let currentChance = 0;
         let isSpinning = false;
-
-        let activeCaseId = 0;
         let multiCount = 1;
+        let activeCaseId = 0;
 
-        // Переменные для холста кейсов
-        let caseCanvas, caseCtx;
-        let caseAnimationId = null;
-        let streams = [];
-
-        // Переменные текущей транзакции
-        let activePaymentAmount = 0;
-
-        // ПРОВЕРКА ПРАВ АДМИНИСТРАТОРА
-        function checkAdminRights() {
-            let userId = 0;
-            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                userId = tg.initDataUnsafe.user.id;
-            }
-            if (userId === ADMIN_TELEGRAM_ID || ADMIN_TELEGRAM_ID === 123456789) { 
-                document.getElementById('secret-developer-panel').style.display = 'block';
-            } else {
-                const el = document.getElementById('secret-developer-panel');
-                if(el) el.remove(); // Физически удаляем из кода для обычных юзеров
-            }
-        }
+        let ringCanvas, ringCtx;
 
         function saveState() {
             localStorage.setItem('arcade_balance', balance);
@@ -332,557 +261,305 @@
             document.getElementById('global-balance').innerText = balance.toFixed(2);
         }
 
-        // ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ
+        function checkAdminRights() {
+            let uId = tg?.initDataUnsafe?.user?.id || 0;
+            if(uId === ADMIN_TELEGRAM_ID || ADMIN_TELEGRAM_ID === 123456789) {
+                document.getElementById('secret-developer-panel').style.display = "block";
+            } else {
+                document.getElementById('secret-developer-panel')?.remove();
+            }
+        }
+
         function switchTab(tabId) {
-            if (isSpinning) return;
+            if(isSpinning) return;
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            
             document.getElementById(`screen-${tabId}`).classList.add('active');
             document.getElementById(`btn-tab-${tabId}`).classList.add('active');
 
-            if (tabId === 'upg') initUpgradeView();
-            if (tabId === 'cases') initCasesCatalog();
-            if (tabId === 'inv') renderMainInventory();
+            if(tabId === 'upg') renderUpgradeSplitScreen();
+            if(tabId === 'cases') initCasesCatalog();
+            if(tabId === 'inv') renderMainInventory();
         }
 
-        // ================= ЛОГИКА АПГРЕЙДА =================
-        let ringCanvas, ringCtx;
-        function drawUpgradeRing(pct, currentAngle = -Math.PI/2) {
+        // ================= НОВАЯ ЛОГИКА ДВУХ КОЛОНОК АПГРЕЙДА =================
+        function renderUpgradeSplitScreen() {
+            // 1. Левая половина - Инвентарь игрока
+            const leftContainer = document.getElementById('upg-left-my-inventory');
+            leftContainer.innerHTML = '';
+            
+            if(inventory.length === 0) {
+                leftContainer.innerHTML = '<div style="grid-column:1/-1; text-align:center; font-size:10px; color:var(--text-muted); padding-top:20px;">Сумка пуста</div>';
+            } else {
+                inventory.forEach((itemId, idx) => {
+                    const item = NFT_ITEMS[itemId];
+                    const card = document.createElement('div');
+                    card.className = `split-card ${selectedMyInvIndex === idx ? 'selected-src' : ''}`;
+                    card.innerHTML = `<img src="${item.img}"><h5>${item.name}</h5><span>${item.price.toFixed(2)}</span>`;
+                    card.onclick = () => {
+                        if(isSpinning) return;
+                        selectedMyInvIndex = idx;
+                        recalculateUpgradeChance();
+                        renderUpgradeSplitScreen();
+                    };
+                    leftContainer.appendChild(card);
+                });
+            }
+
+            // 2. Правая половина - Все цели сайта
+            const rightContainer = document.getElementById('upg-right-site-targets');
+            rightContainer.innerHTML = '';
+
+            NFT_ITEMS.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `split-card ${selectedSiteTargetId === item.id ? 'selected-tar' : ''}`;
+                card.innerHTML = `<img src="${item.img}"><h5>${item.name}</h5><span>${item.price.toFixed(2)}</span>`;
+                card.onclick = () => {
+                    if(isSpinning) return;
+                    selectedSiteTargetId = item.id;
+                    recalculateUpgradeChance();
+                    renderUpgradeSplitScreen();
+                };
+                rightContainer.appendChild(card);
+            });
+
+            recalculateUpgradeChance();
+        }
+
+        function recalculateUpgradeChance() {
+            if(selectedMyInvIndex === null) {
+                currentChance = 0;
+                document.getElementById('chance-badge-val').innerText = "ВЫБЕРИТЕ ДЕПОЗИТ";
+                document.getElementById('ring-target-preview').src = NFT_ITEMS[selectedSiteTargetId].img;
+                drawStaticRing(0);
+                return;
+            }
+
+            const myItem = NFT_ITEMS[inventory[selectedMyInvIndex]];
+            const targetItem = NFT_ITEMS[selectedSiteTargetId];
+
+            document.getElementById('ring-target-preview').src = targetItem.img;
+
+            if(targetItem.price <= myItem.price) {
+                currentChance = 100;
+                document.getElementById('chance-badge-val').innerText = "ЦЕЛЬ ДОЛЖНА БЫТЬ ДОРОЖЕ";
+                drawStaticRing(0);
+                return;
+            }
+
+            let chance = (myItem.price / targetItem.price) * 100;
+            chance = Math.max(0.1, Math.min(95, chance));
+            currentChance = chance;
+
+            document.getElementById('chance-badge-val').innerText = `${chance.toFixed(2)}% ШАНС`;
+            drawStaticRing(chance);
+        }
+
+        function shortcutMultiplier(factor) {
+            if(selectedMyInvIndex === null || isSpinning) return;
+            const myPrice = NFT_ITEMS[inventory[selectedMyInvIndex]].price;
+            const ideal = myPrice * factor;
+
+            let bestMatch = NFT_ITEMS.filter(i => i.price > myPrice).reduce((prev, curr) => {
+                return Math.abs(curr.price - ideal) < Math.abs(prev.price - ideal) ? curr : prev;
+            }, NFT_ITEMS[NFT_ITEMS.length - 1]);
+
+            selectedSiteTargetId = bestMatch.id;
+            renderUpgradeSplitScreen();
+        }
+
+        // Отрисовка круга
+        function drawStaticRing(pct, currentAngle = -Math.PI/2) {
             if(!ringCanvas) {
                 ringCanvas = document.getElementById('ring-canvas');
                 ringCtx = ringCanvas.getContext('2d');
             }
             let cx = ringCanvas.width / 2;
             let cy = ringCanvas.height / 2;
-            let r = cx - 5;
-            
+            let r = cx - 6;
+
             ringCtx.clearRect(0,0,ringCanvas.width,ringCanvas.height);
-            
-            // Фон кольца
+
+            // Ободок
             ringCtx.beginPath();
             ringCtx.arc(cx, cy, r, 0, Math.PI*2);
-            ringCtx.lineWidth = 4;
-            ringCtx.strokeStyle = '#15102a';
+            ringCtx.lineWidth = 5;
+            ringCtx.strokeStyle = "#1a1630";
             ringCtx.stroke();
 
-            // Сектор успеха
-            ringCtx.beginPath();
-            ringCtx.arc(cx, cy, r, -Math.PI/2, (-Math.PI/2) + (Math.PI*2 * (pct/100)));
-            ringCtx.lineWidth = 4;
-            ringCtx.strokeStyle = '#00ff87';
-            ringCtx.stroke();
+            if(pct > 0) {
+                // Сектор успеха
+                ringCtx.beginPath();
+                ringCtx.arc(cx, cy, r, -Math.PI/2, (-Math.PI/2) + (Math.PI*2 * (pct/100)));
+                ringCtx.lineWidth = 5;
+                ringCtx.strokeStyle = "#00ff87";
+                ringCtx.stroke();
+            }
 
-            // Стрелка-маркер во время бега анимации
+            // Бегущая стрелочка
             ringCtx.save();
             ringCtx.translate(cx, cy);
             ringCtx.rotate(currentAngle);
             ringCtx.beginPath();
-            ringCtx.moveTo(r - 5, -4);
-            ringCtx.lineTo(r + 5, 0);
-            ringCtx.lineTo(r - 5, 4);
+            ringCtx.moveTo(r - 6, -5);
+            ringCtx.lineTo(r + 6, 0);
+            ringCtx.lineTo(r - 6, 5);
             ringCtx.closePath();
-            ringCtx.fillStyle = '#ffb700';
+            ringCtx.fillStyle = "#ffb700";
             ringCtx.fill();
             ringCtx.restore();
         }
 
-        function initUpgradeView() {
-            selectedInvIndex = null;
-            document.getElementById('src-placeholder').style.display = 'block';
-            document.getElementById('src-view').style.display = 'none';
-            
-            // Выбираем по умолчанию цель, которая дороже
-            calculateBestTargetAndChance();
-            renderUpgradeInventoryScroller();
-        }
-
-        function renderUpgradeInventoryScroller() {
-            const container = document.getElementById('upg-inventory-scroller');
-            container.innerHTML = '';
-            if(inventory.length === 0) {
-                container.innerHTML = '<div style="font-size:11px; color:var(--text-muted); width:100%; text-align:center; padding:10px;">Инвентарь пуст</div>';
-                return;
-            }
-            inventory.forEach((id, index) => {
-                const item = NFT_ITEMS[id];
-                const cell = document.createElement('div');
-                cell.className = `scroller-cell ${selectedInvIndex === index ? 'selected' : ''}`;
-                cell.innerHTML = `<img src="${item.img}">`;
-                cell.onclick = () => {
-                    if (isSpinning) return;
-                    selectedInvIndex = index;
-                    renderUpgradeInventoryScroller();
-                    
-                    document.getElementById('src-placeholder').style.display = 'none';
-                    document.getElementById('src-view').style.display = 'flex';
-                    document.getElementById('src-img').src = item.img;
-                    document.getElementById('src-name').innerText = item.name;
-                    document.getElementById('src-price').innerText = `${item.price.toFixed(2)} TON`;
-                    
-                    calculateBestTargetAndChance();
-                };
-                container.appendChild(cell);
-            });
-        }
-
-        function calculateBestTargetAndChance() {
-            if (selectedInvIndex === null) {
-                displayTarget(NFT_ITEMS[selectedTargetId], 50);
-                return;
-            }
-            const srcItem = NFT_ITEMS[inventory[selectedInvIndex]];
-            let tarItem = NFT_ITEMS[selectedTargetId];
-            
-            if (tarItem.price <= srcItem.price) {
-                let absoluteNext = NFT_ITEMS.find(i => i.price > srcItem.price);
-                if (absoluteNext) {
-                    selectedTargetId = absoluteNext.id;
-                    tarItem = absoluteNext;
-                } else {
-                    selectedTargetId = NFT_ITEMS[NFT_ITEMS.length - 1].id;
-                    tarItem = NFT_ITEMS[selectedTargetId];
-                }
-            }
-
-            let chance = (srcItem.price / tarItem.price) * 100;
-            chance = Math.max(1, Math.min(95, chance));
-            currentChance = chance;
-
-            displayTarget(tarItem, chance);
-        }
-
-        function displayTarget(item, chance) {
-            document.getElementById('tar-img').src = item.img;
-            document.getElementById('tar-name').innerText = item.name;
-            document.getElementById('tar-price').innerText = `${item.price.toFixed(2)} TON`;
-            document.getElementById('chance-badge-val').innerText = chance.toFixed(2) + '%';
-            drawUpgradeRing(chance);
-        }
-
-        function openTargetSelectionModal() {
-            if (isSpinning || selectedInvIndex === null) return;
-            const srcItem = NFT_ITEMS[inventory[selectedInvIndex]];
-            const grid = document.getElementById('target-modal-grid');
-            grid.innerHTML = '';
-
-            NFT_ITEMS.forEach(item => {
-                if(item.price <= srcItem.price) return; // Цель должна быть дороже депозита
-                
-                let calcChance = (srcItem.price / item.price) * 100;
-                calcChance = Math.max(1, Math.min(95, calcChance));
-
-                const cell = document.createElement('div');
-                cell.className = 'case-card';
-                cell.style.padding = '8px';
-                cell.innerHTML = `
-                    <img src="${item.img}" style="width:45px; height:45px;">
-                    <h5 style="font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%;">${item.name}</h5>
-                    <p style="font-size:10px; color:var(--neon-green);">${calcChance.toFixed(1)}% Шанс</p>
-                `;
-                cell.onclick = () => {
-                    selectedTargetId = item.id;
-                    calculateBestTargetAndChance();
-                    document.getElementById('target-selector-modal').style.display = 'none';
-                };
-                grid.appendChild(cell);
-            });
-            document.getElementById('target-selector-modal').style.display = 'flex';
-        }
-
-        function closeTargetModalOutside(e) { if(e.target.id === 'target-selector-modal') e.target.style.display = 'none'; }
-
-        function multiplyTarget(factor) {
-            if(selectedInvIndex === null || isSpinning) return;
-            let srcItem = NFT_ITEMS[inventory[selectedInvIndex]];
-            let idealPrice = srcItem.price * factor;
-            findClosestTargetMatch(idealPrice);
-        }
-
-        function setFixedPercent(pct) {
-            if(selectedInvIndex === null || isSpinning) return;
-            let srcItem = NFT_ITEMS[inventory[selectedInvIndex]];
-            let idealPrice = srcItem.price / (pct / 100);
-            findClosestTargetMatch(idealPrice);
-        }
-
-        function findClosestTargetMatch(targetPrice) {
-            let srcItem = NFT_ITEMS[inventory[selectedInvIndex]];
-            let validTargets = NFT_ITEMS.filter(i => i.price > srcItem.price);
-            if(validTargets.length === 0) return;
-
-            let bestMatch = validTargets.reduce((prev, curr) => {
-                return Math.abs(curr.price - targetPrice) < Math.abs(prev.price - targetPrice) ? curr : prev;
-            });
-
-            selectedTargetId = bestMatch.id;
-            calculateBestTargetAndChance();
-        }
-
+        // МЕДЛЕННАЯ АЗАРТНАЯ КРУТИЛКА
         function startUpgradeProcess() {
-            if(isSpinning || selectedInvIndex === null) return;
+            if(isSpinning || selectedMyInvIndex === null || currentChance === 100 || currentChance === 0) return;
+            
             isSpinning = true;
             document.getElementById('ring-action-btn').classList.add('disabled');
 
             let startTimestamp = performance.now();
-            let duration = 3000; 
+            let duration = 5500; // ⚡ Увеличили время до 5.5 секунд для жесткого азарта
             let isWinner = (Math.random() * 100) < currentChance;
-            
-            let totalRollAngle = Math.PI * 10; 
-            let winRangeAngle = (Math.PI * 2) * (currentChance / 100);
-            let finalOffset = isWinner ? (Math.random() * winRangeAngle) : (winRangeAngle + Math.random() * (Math.PI * 2 - winRangeAngle));
-            let destinationAngle = (-Math.PI / 2) + totalRollAngle + finalOffset;
 
-            function runRingAnimation(now) {
+            // Накручиваем 7 полных кругов + смещение
+            let totalTurnsAngle = Math.PI * 14; 
+            let winSectorSize = (Math.PI * 2) * (currentChance / 100);
+            let finalOffset = isWinner ? (Math.random() * winSectorSize) : (winSectorSize + Math.random() * (Math.PI * 2 - winSectorSize));
+            let destinationAngle = (-Math.PI / 2) + totalTurnsAngle + finalOffset;
+
+            function animationLoop(now) {
                 let elapsed = now - startTimestamp;
                 let progress = Math.min(elapsed / duration, 1);
-                let ease = 1 - Math.pow(1 - progress, 3); // Кубический исход плавности
-                let currentAngle = (-Math.PI / 2) + (destinationAngle - (-Math.PI / 2)) * ease;
                 
-                drawUpgradeRing(currentChance, currentAngle);
+                // Мощное кубическое замедление (Cubic Ease Out) — стрелка под конец еле ползет
+                let ease = 1 - Math.pow(1 - progress, 3); 
+                
+                let currentAngle = (-Math.PI / 2) + (destinationAngle - (-Math.PI / 2)) * ease;
+
+                drawStaticRing(currentChance, currentAngle);
 
                 if(progress < 1) {
-                    requestAnimationFrame(runRingAnimation);
-                } else {
-                    finalizeUpgradeResult(isWinner);
-                }
-            }
-            requestAnimationFrame(runRingAnimation);
-        }
-
-        function finalizeUpgradeResult(isWinner) {
-            isSpinning = false;
-            document.getElementById('ring-action-btn').classList.remove('disabled');
-
-            if(isWinner) {
-                try { tg.HapticFeedback.notificationOccurred("success"); } catch(e){}
-                inventory[selectedInvIndex] = selectedTargetId;
-                alert(`🔥 Успешный апгрейд! Получен предмет: ${NFT_ITEMS[selectedTargetId].name}`);
-            } else {
-                try { tg.HapticFeedback.notificationOccurred("error"); } catch(e){}
-                inventory.splice(selectedInvIndex, 1);
-                alert("💀 Неудача. NFT сгорел.");
-            }
-            saveState();
-            initUpgradeView();
-        }
-
-
-        // ================= ЛОГИКА ВЕРТИКАЛЬНОГО CANVAS КЕЙСА =================
-        function initCasesCatalog() {
-            document.getElementById('cases-selector-view').style.display = 'grid';
-            document.getElementById('cases-arena-view').style.display = 'none';
-            const catalog = document.getElementById('cases-selector-view');
-            catalog.innerHTML = '';
-
-            CASES.forEach(c => {
-                const card = document.createElement('div');
-                card.className = 'case-card';
-                card.innerHTML = `<img src="${c.img}"><h4>${c.name}</h4><p>${c.price.toFixed(2)} TON</p>`;
-                card.onclick = () => launchCaseArena(c.id);
-                catalog.appendChild(card);
-            });
-        }
-
-        function launchCaseArena(id) {
-            activeCaseId = id;
-            document.getElementById('cases-selector-view').style.display = 'none';
-            document.getElementById('cases-arena-view').style.display = 'flex';
-            document.getElementById('arena-title').innerText = CASES[id].name;
-            changeMultiCount(1);
-            setupCanvasElements();
-        }
-
-        function closeArenaView() {
-            if(isSpinning) return;
-            cancelAnimationFrame(caseAnimationId);
-            initCasesCatalog();
-        }
-
-        function changeMultiCount(count) {
-            if (isSpinning) return;
-            multiCount = count;
-            document.querySelectorAll('[id^="m-count-"]').forEach(b => b.classList.remove('active'));
-            document.getElementById(`m-count-${count}`).classList.add('active');
-            document.getElementById('case-action-cost').innerText = (CASES[activeCaseId].price * count).toFixed(2);
-            setupCanvasElements();
-        }
-
-        // Подготовка потоков прокрутки
-        function setupCanvasElements() {
-            caseCanvas = document.getElementById('cases-canvas');
-            caseCtx = caseCanvas.getContext('2d');
-            
-            streams = [];
-            let streamWidth = caseCanvas.width / multiCount;
-            let pack = CASES[activeCaseId];
-
-            for (let s = 0; s < multiCount; s++) {
-                let streamItems = [];
-                // Заполняем ленту случайными картинками
-                for (let i = 0; i < 50; i++) {
-                    let randomItem = NFT_ITEMS[pack.items[Math.floor(Math.random() * pack.items.length)]];
-                    streamItems.push(randomItem);
-                }
-                streams.push({
-                    x: s * streamWidth,
-                    width: streamWidth,
-                    items: streamItems,
-                    yOffset: 0,
-                    targetY: 0,
-                    speed: 0,
-                    isDone: false,
-                    winItem: null
-                });
-            }
-            renderStaticCanvas();
-        }
-
-        // Отрисовка холста, когда он стоит на месте
-        function renderStaticCanvas() {
-            caseCtx.clearRect(0,0,caseCanvas.width,caseCanvas.height);
-            let cellHeight = 70;
-
-            streams.forEach(stream => {
-                // Малюем разделительные линии потоков
-                caseCtx.strokeStyle = '#15102a';
-                caseCtx.lineWidth = 2;
-                caseCtx.strokeRect(stream.x, 0, stream.width, caseCanvas.height);
-
-                for (let i = 0; i < 4; i++) {
-                    let item = stream.items[i];
-                    drawCellGraphic(item, stream.x, i * cellHeight + 10, stream.width, cellHeight);
-                }
-            });
-
-            // Красивая горизонтальная центральная линия победы
-            caseCtx.strokeStyle = '#ffb700';
-            caseCtx.lineWidth = 3;
-            caseCtx.beginPath();
-            caseCtx.moveTo(0, caseCanvas.height / 2);
-            caseCtx.lineTo(caseCanvas.width, caseCanvas.height / 2);
-            caseCtx.stroke();
-        }
-
-        function drawCellGraphic(item, x, y, w, h) {
-            if(!item) return;
-            try {
-                let imgEl = new Image();
-                imgEl.src = item.img;
-                caseCtx.drawImage(imgEl, x + (w - 45)/2, y, 45, 45);
-            } catch(e){}
-            caseCtx.fillStyle = '#fff';
-            caseCtx.font = 'bold 8px sans-serif';
-            caseCtx.textAlign = 'center';
-            caseCtx.fillText(item.name.substring(0,12), x + w/2, y + 58);
-        }
-
-        function triggerCaseOpening() {
-            if (isSpinning) return;
-            let pack = CASES[activeCaseId];
-            let cost = pack.price * multiCount;
-
-            if (balance < cost) { alert("Недостаточно TON на балансе!"); return; }
-            balance -= cost;
-            saveState();
-
-            isSpinning = true;
-            document.getElementById('btn-trigger-case').classList.add('disabled');
-
-            let cellHeight = 70;
-            let targetWinIndex = 35; // Элемент, который остановится посередине
-
-            let startTime = performance.now();
-            let duration = 4000; 
-
-            streams.forEach(stream => {
-                let prize = NFT_ITEMS[pack.items[Math.floor(Math.random() * pack.items.length)]];
-                stream.items[targetWinIndex] = prize; 
-                stream.winItem = prize;
-                stream.isDone = false;
-                
-                // Конечная позиция по оси Y, чтобы нужный элемент встал ровно по центру холста
-                stream.targetY = (targetWinIndex * cellHeight) - (caseCanvas.height / 2) + (cellHeight / 2);
-            });
-
-            function updateLoop(now) {
-                let elapsed = now - startTime;
-                let progress = Math.min(elapsed / duration, 1);
-                let ease = 1 - Math.pow(1 - progress, 4); // Интенсивное плавное торможение
-
-                caseCtx.clearRect(0,0,caseCanvas.width,caseCanvas.height);
-                let cellHeight = 70;
-
-                streams.forEach(stream => {
-                    let currentY = stream.targetY * ease;
-                    stream.yOffset = currentY;
-
-                    caseCtx.strokeStyle = '#15102a';
-                    caseCtx.lineWidth = 1;
-                    caseCtx.strokeRect(stream.x, 0, stream.width, caseCanvas.height);
-
-                    // Отрезаем и рендерим циклично картинки снизу-вверх
-                    let startCell = Math.floor(currentY / cellHeight);
-                    for (let i = startCell; i < startCell + 6; i++) {
-                        let item = stream.items[i % stream.items.length];
-                        let renderY = caseCanvas.height - ((i * cellHeight) - currentY) - cellHeight;
-                        drawCellGraphic(item, stream.x, renderY, stream.width, cellHeight);
-                    }
-                });
-
-                // Линия фиксации
-                caseCtx.strokeStyle = 'rgba(255, 183, 0, 0.6)';
-                caseCtx.lineWidth = 3;
-                caseCtx.beginPath();
-                caseCtx.moveTo(0, caseCanvas.height / 2);
-                caseCtx.lineTo(caseCanvas.width, caseCanvas.height / 2);
-                caseCtx.stroke();
-
-                if (progress < 1) {
-                    caseAnimationId = requestAnimationFrame(updateLoop);
+                    requestAnimationFrame(animationLoop);
                 } else {
                     isSpinning = false;
-                    document.getElementById('btn-trigger-case').classList.remove('disabled');
-                    displayMultiWinWindow();
+                    document.getElementById('ring-action-btn').classList.remove('disabled');
+                    
+                    if(isWinner) {
+                        inventory[selectedMyInvIndex] = selectedSiteTargetId;
+                        alert(`🔥 АПГРЕЙД ЗАШЕЛ! Вы получили: ${NFT_ITEMS[selectedSiteTargetId].name}`);
+                    } else {
+                        inventory.splice(selectedMyInvIndex, 1);
+                        alert("💀 СГОРЕЛ! Повезет в следующий раз.");
+                    }
+                    selectedMyInvIndex = null;
+                    saveState();
+                    renderUpgradeSplitScreen();
                 }
             }
-            caseAnimationId = requestAnimationFrame(updateLoop);
+            requestAnimationFrame(animationLoop);
         }
 
-        let rolledPrizes = [];
-        function displayMultiWinWindow() {
-            rolledPrizes = [];
-            const holder = document.getElementById('win-modal-nodes-holder');
-            holder.innerHTML = '';
 
-            streams.forEach(s => {
-                rolledPrizes.push(s.winItem.id);
-                inventory.push(s.winItem.id); // Клади в инвентарь сразу
-
-                const div = document.createElement('div');
-                div.className = 'win-node';
-                div.innerHTML = `<img src="${s.winItem.img}"><p>${s.winItem.name}</p><b style="color:var(--neon-gold)">${s.winItem.price.toFixed(2)}</b>`;
-                holder.appendChild(div);
+        // ================= ОСТАЛЬНОЙ НАДЁЖНЫЙ ФУНКЦИОНАЛ =================
+        function initCasesCatalog() {
+            document.getElementById('cases-selector-view').style.display = "grid";
+            document.getElementById('cases-arena-view').style.display = "none";
+            const v = document.getElementById('cases-selector-view');
+            v.innerHTML = '';
+            CASES.forEach(c => {
+                const n = document.createElement('div');
+                n.className = "case-card";
+                n.innerHTML = `<img src="${c.img}"><h4>${c.name}</h4><p style="color:var(--neon-gold); font-weight:bold; font-size:12px;">${c.price.toFixed(2)} TON</p>`;
+                n.onclick = () => {
+                    activeCaseId = c.id;
+                    document.getElementById('cases-selector-view').style.display = "none";
+                    document.getElementById('cases-arena-view').style.display = "flex";
+                    document.getElementById('arena-title').innerText = c.name;
+                    changeMultiCount(1);
+                };
+                v.appendChild(n);
             });
-
-            saveState();
-            try { tg.HapticFeedback.notificationOccurred("success"); } catch(e){}
-            document.getElementById('global-win-modal').style.display = 'flex';
         }
 
-        function closeWinModal() {
-            document.getElementById('global-win-modal').style.display = 'none';
-            setupCanvasElements();
+        function changeMultiCount(c) {
+            multiCount = c;
+            document.querySelectorAll('[id^="m-count-"]').forEach(b => b.classList.remove('active'));
+            document.getElementById(`m-count-${c}`).classList.add('active');
+            document.getElementById('case-action-cost').innerText = (CASES[activeCaseId].price * c).toFixed(2);
         }
 
-        // ================= ИНВЕНТАРЬ И АВТО-ВЫВОД NFT =================
-        function renderMainInventory() {
-            const grid = document.getElementById('main-inventory-dom-grid');
-            grid.innerHTML = '';
+        function closeArenaView() { initCasesCatalog(); }
+
+        function triggerCaseOpening() {
+            let cost = CASES[activeCaseId].price * multiCount;
+            if(balance < cost) { alert("Недостаточно TON!"); return; }
+            balance -= cost;
+
+            let holder = document.getElementById('win-modal-nodes-holder');
+            holder.innerHTML = '';
             
-            document.getElementById('inv-count-lbl').innerText = inventory.length;
-            let sum = 0;
+            for(let i=0; i<multiCount; i++) {
+                let pList = CASES[activeCaseId].items;
+                let rItem = NFT_ITEMS[pList[Math.floor(Math.random() * pList.length)]];
+                inventory.push(rItem.id);
 
-            if(inventory.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:40px; font-size:13px;">Инвентарь пуст. Открывай кейсы!</div>';
-                document.getElementById('inv-sum-lbl').innerText = '0.00 TON';
-                return;
+                let d = document.createElement('div');
+                d.className = "win-node";
+                d.innerHTML = `<img src="${rItem.img}"><p>${rItem.name}</p>`;
+                holder.appendChild(d);
             }
+            saveState();
+            document.getElementById('global-win-modal').style.display = "flex";
+        }
 
+        function closeWinModal() { document.getElementById('global-win-modal').style.display = "none"; initCasesCatalog(); }
+
+        function renderMainInventory() {
+            const g = document.getElementById('main-inventory-dom-grid');
+            g.innerHTML = '';
             inventory.forEach((id, index) => {
                 const item = NFT_ITEMS[id];
-                sum += item.price;
-
                 const card = document.createElement('div');
                 card.className = `inv-card r-${item.rarity}`;
-                card.innerHTML = `
-                    <img src="${item.img}">
-                    <h5>${item.name}</h5>
-                    <div class="price">${item.price.toFixed(2)} TON</div>
-                    <div class="inv-actions">
-                        <button class="inv-sub-btn btn-sell-action" onclick="sellItem(${index})">Продать</button>
-                        <button class="inv-sub-btn btn-out-action" onclick="gateWithdrawNft(${index})">Вывести</button>
-                    </div>
-                `;
-                grid.appendChild(card);
+                card.innerHTML = `<img src="${item.img}"><h5>${item.name}</h5><div class="price">${item.price.toFixed(2)} TON</div><button class="inv-sub-btn" style="background:rgba(0,255,135,0.15); color:var(--neon-green);" onclick="withdrawItemAction(${index})">Вывести</button>`;
+                g.appendChild(card);
             });
-
-            document.getElementById('inv-sum-lbl').innerText = sum.toFixed(2) + ' TON';
         }
 
-        function sellItem(index) {
-            if(isSpinning) return;
-            let item = NFT_ITEMS[inventory[index]];
-            balance += item.price;
-            inventory.splice(index,1);
-            saveState();
-            renderMainInventory();
-        }
-
-        // Безопасная стратегия вывода конкретного выбранного предмета
-        function gateWithdrawNft(index) {
-            if(isSpinning) return;
-            let item = NFT_ITEMS[inventory[index]];
-
-            let confirmWithdraw = confirm(`Вы действительно хотите вывести "${item.name}"?\n\nПосле подтверждения предмет будет списан с игрового баланса, а бот выдаст вам подарок!`);
-            if(!confirmWithdraw) return;
-
-            // Формируем payload для бэкенда
-            let payload = {
-                action: "withdraw_gift_request",
-                item_id: item.id,
-                item_name: item.name,
-                item_price: item.price
-            };
-
-            // Мгновенно списываем вещь из локальной БД юзера, чтобы избежать багов/накрутки
-            inventory.splice(index, 1);
-            saveState();
-            renderMainInventory();
-
-            alert(`✅ Заявка на вывод предмета "${item.name}" успешно передана боту.\nОжидайте автоматического зачисления!`);
-
-            // Передача боту по нативному каналу
-            if(tg) {
-                tg.sendData(JSON.stringify(payload));
+        function withdrawItemAction(idx) {
+            let item = NFT_ITEMS[inventory[idx]];
+            if(confirm(`Вывести ${item.name} в бот?`)) {
+                if(tg) tg.sendData(JSON.stringify({action:"withdraw_gift_request", item_id: item.id, item_name: item.name}));
+                inventory.splice(idx, 1);
+                saveState();
+                renderMainInventory();
+                alert("Заявка улетела в админку бота!");
             }
         }
 
-        // ================= НАДЁЖНАЯ ПЛАТЕЖНАЯ СИСТЕМА (INVOICE) =================
-        function initiatePayment(type, value, starCost) {
-            activePaymentAmount = value;
-            
-            document.getElementById('sheet-title').innerText = type === 'stars' ? "Оплата через Telegram Stars 🌟" : "Оплата через TON CryptoPay 💎";
-            document.getElementById('sheet-product').innerText = `Пакет валюты +${value.toFixed(2)} TON`;
-            document.getElementById('sheet-price').innerText = type === 'stars' ? `${starCost} Stars` : `${value.toFixed(2)} TON`;
-            
-            // Пытаемся вызвать нативный инвойс, если бэкенд передал ссылку
-            // В реальной жизни бот шлет ссылку, и мы выполняем: tg.openInvoice("https://t.me/$invoice/...");
-            
-            // Встроенная безопасная шторка эмуляции (приложение не вылетает!)
-            document.getElementById('native-invoice-sheet').style.display = 'block';
+        let currentPayVal = 0;
+        function initiatePayment(type, val, stars) {
+            currentPayVal = val;
+            document.getElementById('sheet-product').innerText = `Пополнение +${val} TON`;
+            document.getElementById('sheet-price').innerText = type==='stars' ? `${stars} Stars` : `${val} TON`;
+            document.getElementById('native-invoice-sheet').style.display = "block";
         }
-
-        function closeInvoiceSheet() { document.getElementById('native-invoice-sheet').style.display = 'none'; }
-
+        function closeInvoiceSheet() { document.getElementById('native-invoice-sheet').style.display = "none"; }
         function simulateSuccessPayment() {
-            balance += activePaymentAmount;
+            balance += currentPayVal;
             saveState();
             closeInvoiceSheet();
-            alert(`🎉 Транзакция подтверждена! На ваш баланс зачислено +${activePaymentAmount.toFixed(2)} TON`);
+            alert("Валюта зачислена!");
         }
 
-        // ================= РЕЖИМ РАЗРАБОТЧИКА =================
-        function devBalance(v) { balance = Math.max(0, balance + v); saveState(); }
-        function devClearInv() { inventory = []; saveState(); renderMainInventory(); }
-        function devInjectNft(id) { inventory.push(id); saveState(); renderMainInventory(); }
+        function devBalance(v) { balance += v; saveState(); }
+        function devInjectNft(id) { inventory.push(id); saveState(); }
         function devWipeAll() { localStorage.clear(); location.reload(); }
-
 
         window.onload = () => {
             checkAdminRights();
             saveState();
-            initUpgradeView();
+            renderUpgradeSplitScreen();
         };
     </script>
 </body>
