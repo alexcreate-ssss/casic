@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON Neon Casino</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c1b, #241442);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            color: #00f2fe;
+            text-shadow: 0 0 10px #00f2fe, 0 0 20px #4facfe;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .welcome {
+            font-size: 14px;
+            color: #a29bfe;
+            margin-bottom: 25px;
+        }
+
+        /* Карточки/Контейнеры */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(4px);
+            margin-bottom: 20px;
+        }
+
+        .balance-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #bdbdbd;
+        }
+
+        .balance-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00ff87;
+            text-shadow: 0 0 10px rgba(0, 255, 135, 0.5);
+            margin: 10px 0;
+        }
+
+        /* Кнопки */
+        .btn {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-upgrade {
+            background: linear-gradient(45deg, #f857a6, #ff5858);
+            box-shadow: 0 4px 15px rgba(248, 87, 166, 0.4);
+        }
+
+        /* Анимация кручения/открытия бокса */
+        .gift-box {
+            font-size: 60px;
+            margin: 20px 0;
+            transition: transform 0.5s ease;
+            cursor: pointer;
+        }
+
+        .spin-animation {
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        
+        .status-text {
+            font-size: 14px;
+            color: #00ff87;
+            min-height: 20px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>💎 NEON CASINO 💎</h1>
+    <div class="welcome" id="welcome-user">Удачи, Игрок!</div>
+
+    <div class="card">
+        <div class="balance-title">Игровой баланс</div>
+        <div class="balance-value" id="balance">1.00 TON</div>
+        <div class="status-text" id="status"></div>
+    </div>
+
+    <div class="card">
+        <div class="balance-title">Уровень удачи: <span id="luck-lvl" style="color:#f857a6">1</span></div>
+        <div class="gift-box" id="box" onclick="playGame()">🎁</div>
+        <button class="btn" onclick="playGame()">Открыть Подарок (0.1 TON)</button>
+        <button class="btn btn-upgrade" onclick="upgradeLuck()">⚡ Апгрейд подарков (+Удача)</button>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp API
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Открываем на весь экран смартфона
+
+        // Пытаемся взять имя юзера из телеграма
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            document.getElementById('welcome-user').innerText = `Удачи, @${tg.initDataUnsafe.user.username}!`;
+        }
+
+        // Локальные переменные игры (в идеале синхронизировать с бэком)
+        let balance = 1.00;
+        let luckLvl = 1;
+
+        function playGame() {
+            if (balance < 0.1) {
+                document.getElementById('status').style.color = '#ff5858';
+                document.getElementById('status').innerText = "❌ Недостаточно TON!";
+                tg.HapticFeedback.notificationOccurred("error"); // Виброотклик в ТГ
+                return;
+            }
+
+            balance -= 0.1;
+            updateUI();
+            
+            const box = document.getElementById('box');
+            box.classList.add('spin-animation');
+            document.getElementById('status').innerText = "Открытие бокса...";
+
+            setTimeout(() => {
+                box.classList.remove('spin-animation');
+                
+                // Расчет выигрыша с учетом уровня удачи
+                let chance = 0.3 + (luckLvl * 0.05);
+                if (Math.random() < chance) {
+                    let win = Math.round((Math.random() * 0.4 + 0.15) * 100) / 100;
+                    balance += win;
+                    document.getElementById('status').style.color = '#00ff87';
+                    document.getElementById('status').innerText = `🎉 Выпало: +${win} TON!`;
+                    tg.HapticFeedback.notificationOccurred("success");
+                } else {
+                    document.getElementById('status').style.color = '#ff5858';
+                    document.getElementById('status').innerText = "💀 Пустой подарок...";
+                    tg.HapticFeedback.notificationOccurred("warning");
+                }
+                updateUI();
+            }, 800);
+        }
+
+        function upgradeLuck() {
+            let cost = luckLvl * 0.5;
+            if (balance < cost) {
+                alert(`Для апгрейда нужно ${cost} TON!`);
+                return;
+            }
+            balance -= cost;
+            luckLvl += 1;
+            document.getElementById('status').style.color = '#00f2fe';
+            document.getElementById('status').innerText = `⚡ Удача прокачана до Lvl ${luckLvl}!`;
+            tg.HapticFeedback.impactOccurred("heavy");
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('balance').innerText = `${balance.toFixed(2)} TON`;
+            document.getElementById('luck-lvl').innerText = luckLvl;
+        }
+    </script>
+</body>
+</html>
