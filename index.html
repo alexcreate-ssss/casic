@@ -22,7 +22,16 @@
 
         /* Шапка */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; }
-        .logo { font-weight: 900; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; background: linear-gradient(90deg, #fff, var(--neon-blue)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo { 
+    font-weight: 900; 
+    font-size: 15px; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    background: linear-gradient(90deg, #fff, var(--neon-blue)); 
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    color: transparent; /* Это заменяет -webkit-text-fill-color для лучшей совместимости */
+}
         .balance-container { background: rgba(0, 255, 135, 0.1); border: 1px solid rgba(0, 255, 135, 0.2); padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; }
         .balance-val { color: var(--neon-green); }
 
@@ -304,12 +313,12 @@
 
         // Пути картинок подготовлены под локальную папку assets/nft/
         const NFT_ITEMS = [
-            { id: 0, name: "Notcoin Voucher", price: 1.00, img: "assets/nft/nft_0.jpg", rarity: "mil" },
-            { id: 1, name: "TON Punk #2410", price: 2.50, img: "assets/nft/nft_1.jpg", rarity: "mil" },
-            { id: 2, name: "Anonymous +888", price: 5.00, img: "assets/nft/nft_2.jpg", rarity: "rest" },
-            { id: 3, name: "Whales Club NFT", price: 12.00, img: "assets/nft/nft_3.jpg", rarity: "class" },
-            { id: 4, name: "Username @durov", price: 30.00, img: "assets/nft/nft_4.jpg", rarity: "cov" },
-            { id: 5, name: "Alpha Avatar", price: 85.00, img: "assets/nft/nft_5.jpg", rarity: "cov" }
+            { id: 0, name: "Notcoin Voucher", price: 1.00, img: "assets/nft/nft_0.png", rarity: "mil" },
+            { id: 1, name: "TON Punk #2410", price: 2.50, img: "assets/nft/nft_1.png", rarity: "mil" },
+            { id: 2, name: "Anonymous +888", price: 5.00, img: "assets/nft/nft_2.png", rarity: "rest" },
+            { id: 3, name: "Whales Club NFT", price: 12.00, img: "assets/nft/nft_3.png", rarity: "class" },
+            { id: 4, name: "Username @durov", price: 30.00, img: "assets/nft/nft_4.png", rarity: "cov" },
+            { id: 5, name: "Alpha Avatar", price: 85.00, img: "assets/nft/nft_5.png", rarity: "cov" }
         ];
 
         // Пути картинок подготовлены под локальную папку assets/cases/
