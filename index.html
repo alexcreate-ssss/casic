@@ -132,7 +132,7 @@
         .currency-mode-selector { display: flex; background: var(--bg-panel); padding: 4px; border-radius: 10px; gap: 4px; margin-bottom: 15px; }
         .curr-select-btn { flex: 1; height: 36px; background: none; border: none; border-radius: 7px; color: #aaa; font-weight: bold; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
         .curr-select-btn.active { background: var(--bg-card); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        .curr-select-btn img { width: 16px; height: 16px; object-fit: contain; }
+        .curr-select-btn svg { width: 14px; height: 14px; }
 
         .deposit-input-wrapper { margin-bottom: 15px; display: flex; align-items: center; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0 14px; height: 48px; }
         .deposit-input-style { flex: 1; background: transparent; border: none; height: 100%; color: #fff; font-size: 16px; font-weight: bold; outline: none; user-select: text; -webkit-user-select: text; }
@@ -143,7 +143,7 @@
         .native-range-input { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px; background: var(--bg-panel); outline: none; margin: 5px 0; }
         .native-range-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%; background: var(--neon-blue); cursor: pointer; box-shadow: 0 0 8px var(--neon-blue); }
 
-        .stars-estimation-card { background: var(--bg-panel); border-radius: 10px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.02); }
+        .stars-estimation-card { display: flex; background: var(--bg-panel); border-radius: 10px; padding: 10px 14px; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.02); }
         .stars-est-left { display: flex; flex-direction: column; gap: 2px; }
         .stars-est-left span { font-size: 11px; font-weight: bold; }
         .stars-est-left p { font-size: 8px; color: var(--text-muted); }
@@ -268,11 +268,11 @@
 
             <div class="currency-mode-selector">
                 <button class="curr-select-btn active" id="pay-method-stars" onclick="switchPayMethod('XTR')">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#ffb700" style="margin-right:2px;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="#ffb700"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                     Telegram Stars
                 </button>
                 <button class="curr-select-btn" id="pay-method-ton" onclick="switchPayMethod('TON')">
-                    <img src="https://i.ibb.co/1GJqx9pP/nft-0.webp" style="width:14px; height:14px; filter: hue-rotate(120deg);" alt="ton">
+                    <svg viewBox="0 0 24 24" fill="#00f2fe"><path d="M12 2L2 12l10 10 10-10L12 2zm0 4.14L17.86 12 12 17.86 6.14 12 12 6.14z"/></svg>
                     TON Native
                 </button>
             </div>
@@ -291,7 +291,7 @@
                 <input type="range" min="0.1" max="50" step="0.1" value="5.0" class="native-range-input" id="cash-range-slider" oninput="updateDepositSliderValue()">
             </div>
 
-            <div class="stars-estimation-card">
+            <div class="stars-estimation-card" id="stars-conversion-block">
                 <div class="stars-est-left">
                     <span>Стоимость пополнения</span>
                     <p>Расчет конвертации платежа по курсу платформы</p>
@@ -865,23 +865,34 @@
         function switchPayMethod(mode) {
             chosenCurrencyMode = mode;
             document.querySelectorAll('.curr-select-btn').forEach(b => b.classList.remove('active'));
+            
+            const conversionBlock = document.getElementById('stars-conversion-block');
+            
             if(mode === 'XTR') {
                 document.getElementById('pay-method-stars').classList.add('active');
+                if(conversionBlock) conversionBlock.style.display = 'flex';
             } else {
                 document.getElementById('pay-method-ton').classList.add('active');
+                if(conversionBlock) conversionBlock.style.display = 'none';
             }
         }
 
         function sendDepositInvoiceToBot() {
-            let val = parseFloat(document.getElementById('cash-text-input').value);
-            if (isNaN(val) || val < 0.1) { alert("Минимальная сумма пополнения 0.1 TON"); return; }
+            // ЖЕСТКИЙ ПАРСИНГ АКТУАЛЬНОГО ЗНАЧЕНИЯ ИЗ ИНПУТА ДЛЯ ЗАЩИТЫ ОТ СБРОСА НА МИНИМУМ
+            let inputValStr = document.getElementById('cash-text-input').value;
+            let val = parseFloat(inputValStr);
+            
+            if (isNaN(val) || val < 0.1) { 
+                alert("Минимальная сумма пополнения 0.1 TON"); 
+                return; 
+            }
 
             let starsCost = Math.ceil(val * 15);
 
             let payload = {
                 action: "deposit_request",
                 currency: chosenCurrencyMode, 
-                amount_ton: val.toString(),
+                amount_ton: val.toFixed(2), // Передаем строго отформатированную строку
                 amount_stars: starsCost.toString()
             };
 
