@@ -23,15 +23,15 @@
         /* Шапка */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; }
         .logo { 
-    font-weight: 900; 
-    font-size: 15px; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    background: linear-gradient(90deg, #fff, var(--neon-blue)); 
-    -webkit-background-clip: text; 
-    background-clip: text; 
-    color: transparent; /* Это заменяет -webkit-text-fill-color для лучшей совместимости */
-}
+            font-weight: 900;
+            font-size: 15px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            background: linear-gradient(90deg, #fff, var(--neon-blue)); 
+            -webkit-background-clip: text; 
+            background-clip: text; 
+            color: transparent;
+        }
         .balance-container { background: rgba(0, 255, 135, 0.1); border: 1px solid rgba(0, 255, 135, 0.2); padding: 6px 14px; border-radius: 20px; font-weight: bold; font-size: 13px; }
         .balance-val { color: var(--neon-green); }
 
@@ -122,6 +122,12 @@
         .slider-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .slider-amount-badge { font-size: 20px; font-weight: 900; color: var(--neon-green); }
         
+        /* Инпут для ручного ввода суммы пополнения */
+        .deposit-input-wrapper { margin-bottom: 15px; text-align: left; position: relative; display: flex; align-items: center; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0 14px; }
+        .deposit-input-style { width: 100%; background: transparent; border: none; padding: 12px 0; color: #fff; font-size: 15px; font-weight: bold; outline: none; -moz-appearance: textfield; user-select: text; -webkit-user-select: text; }
+        .deposit-input-style::-webkit-outer-spin-button, .deposit-input-style::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .deposit-input-currency { font-weight: bold; color: var(--neon-green); font-size: 14px; margin-left: 8px; }
+
         .custom-range-input { -webkit-appearance: none; width: 100%; height: 6px; background: var(--bg-panel); border-radius: 5px; outline: none; margin-bottom: 20px; }
         .custom-range-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--neon-blue); cursor: pointer; box-shadow: 0 0 8px var(--neon-blue); }
 
@@ -130,9 +136,9 @@
         .curr-select-btn.active.mode-stars { border-color: var(--neon-gold); color: var(--neon-gold); background: rgba(255,183,0,0.05); }
         .curr-select-btn.active.mode-ton { border-color: var(--neon-blue); color: var(--neon-blue); background: rgba(0,242,254,0.05); }
 
-        /* ================= АДМИН-ЦЕНТР УПРАВЛЕНИЯ БАЗОЙ ДАННЫХ ================= */
+        /* ================= АДМИН-ЦЕНТР ================= */
         .admin-panel { display: none; background: rgba(248, 87, 166, 0.02); border: 2px dashed var(--neon-pink); border-radius: 16px; padding: 14px; margin-top: 15px; text-align: left; }
-        .admin-input-style { width: 100%; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: #fff; font-size: 12px; margin-top: 5px; margin-bottom: 10px; outline: none; }
+        .admin-input-style { width: 100%; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px; color: #fff; font-size: 12px; margin-top: 5px; margin-bottom: 10px; outline: none; user-select: text; -webkit-user-select: text; }
         
         .db-inspector-card { background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; margin-bottom: 12px; font-size: 11px; }
         .db-log-line { color: var(--neon-blue); font-weight: bold; margin-bottom: 4px; }
@@ -160,7 +166,7 @@
         
         .win-action-buttons { display: flex; flex-direction: column; gap: 4px; }
         .drop-choice-btn { background: #0c0a14; border: 1px solid rgba(255,255,255,0.1); color: #ccc; font-size: 9px; font-weight: bold; padding: 5px 8px; border-radius: 6px; cursor: pointer; text-transform: uppercase; text-align: center; min-width: 80px; }
-        .drop-choice-btn.c-upg { border-color: var(--neon-blue); color: var(--neon-blue); }
+        .drop-choice-btn.c-upg  { border-color: var(--neon-blue); color: var(--neon-blue); }
         .drop-choice-btn.c-sell { border-color: var(--neon-pink); color: var(--neon-pink); }
         .drop-choice-btn.c-keep { border-color: var(--neon-green); color: var(--neon-green); }
 
@@ -251,13 +257,18 @@
         <div class="cash-box-panel">
             <div class="slider-title-row">
                 <span style="font-size:13px; color:#aaa; font-weight:bold;">Сумма пополнения:</span>
-                <span class="slider-amount-badge"><span id="deposit-amount-lbl">10</span> TON</span>
+                <span class="slider-amount-badge"><span id="deposit-amount-lbl">0.1</span> TON</span>
             </div>
             
-            <input type="range" min="2" max="150" value="10" class="custom-range-input" id="cash-range-slider" oninput="updateDepositSliderValue()">
+            <div class="deposit-input-wrapper">
+                <input type="number" min="0.5" max="1000" step="0.5" value="0.5" class="deposit-input-style" id="cash-text-input" oninput="updateDepositInputValue()" placeholder="Введите сумму...">
+                <span class="deposit-input-currency">TON</span>
+            </div>
+
+            <input type="range" min="0.5" max="30" step="0.5" value="0.5" class="custom-range-input" id="cash-range-slider" oninput="updateDepositSliderValue()">
             
             <div class="currency-tabs">
-                <button class="curr-select-btn active mode-stars" id="pay-method-stars" onclick="switchPayMethod('XTR')">🌟 Telegram Stars (<span id="stars-cost-calculated">150</span>)</button>
+                <button class="curr-select-btn active mode-stars" id="pay-method-stars" onclick="switchPayMethod('XTR')">🌟 Telegram Stars (<span id="stars-cost-calculated">2</span>)</button>
                 <button class="curr-select-btn mode-ton" id="pay-method-ton" onclick="switchPayMethod('TON')">💎 Через TON Прямо</button>
             </div>
 
@@ -308,20 +319,17 @@
         const tg = window.Telegram.WebApp;
         if(tg) { tg.expand(); tg.ready(); }
 
-        // ПОДСТАВЬ СВОЙ ID СЮДА (НАПРИМЕР: 5938201) — БЕЗ ЭТОГО АДМИНКА БУДЕТ СКРЫТА ОТ ВСЕХ НА 100%
         const ADMIN_TELEGRAM_ID = 1101669771;
 
-        // Пути картинок подготовлены под локальную папку assets/nft/
         const NFT_ITEMS = [
-    { id: 0, name: "Notcoin Voucher", price: 1.00, img: "https://i.ibb.co/1GJqx9pP/nft-0.webp", rarity: "mil" },
-    { id: 1, name: "TON Punk #2410", price: 2.50, img: "https://i.ibb.co/T58pg0G/nft-1.webp", rarity: "mil" },
-    { id: 2, name: "Anonymous +888", price: 5.00, img: "https://i.ibb.co/svg8q1H9/nft-2.webp", rarity: "rest" },
-    { id: 3, name: "Whales Club NFT", price: 12.00, img: "https://i.ibb.co/SwPYKyQS/nft-3.webp", rarity: "class" },
-    { id: 4, name: "Username @durov", price: 30.00, img: "https://i.ibb.co/F4ccZq8Z/nft-4.webp", rarity: "cov" },
-    { id: 5, name: "Alpha Avatar", price: 85.00, img: "https://i.ibb.co/4RJ5prGj/nft-5.webp", rarity: "cov" }
+            { id: 0, name: "Notcoin Voucher", price: 1.00, img: "https://i.ibb.co/1GJqx9pP/nft-0.webp", rarity: "mil" },
+            { id: 1, name: "TON Punk #2410", price: 2.50, img: "https://i.ibb.co/T58pg0G/nft-1.webp", rarity: "mil" },
+            { id: 2, name: "Anonymous +888", price: 5.00, img: "https://i.ibb.co/svg8q1H9/nft-2.webp", rarity: "rest" },
+            { id: 3, name: "Whales Club NFT", price: 12.00, img: "https://i.ibb.co/SwPYKyQS/nft-3.webp", rarity: "class" },
+            { id: 4, name: "Username @durov", price: 30.00, img: "https://i.ibb.co/F4ccZq8Z/nft-4.webp", rarity: "cov" },
+            { id: 5, name: "Alpha Avatar", price: 85.00, img: "https://i.ibb.co/4RJ5prGj/nft-5.webp", rarity: "cov" }
         ];
 
-        // Пути картинок подготовлены под локальную папку assets/cases/
         const CASES = [
             { id: 0, name: "Starter Notcoin Box", price: 1.50, items: [0, 1], img: "assets/cases/case_0.png" },
             { id: 1, name: "Anonymous Case", price: 4.00, items: [0, 1, 2], img: "assets/cases/case_1.png" },
@@ -342,7 +350,7 @@
         let historyLogs = localStorage.getItem(`history_${userId}`) !== null ? JSON.parse(localStorage.getItem(`history_${userId}`)) : [];
 
         let selectedMyInvIndex = null; 
-        let selectedSiteTargetId = 2;  
+        let selectedSiteTargetId = 2;
         let currentChance = 0;
         let isSpinning = false;
         let multiCount = 1;
@@ -358,7 +366,6 @@
         }
 
         function checkAdminAccess() {
-            // Жесткое условие: панель откроется ТОЛЬКО если реальный Telegram ID совпадет с константой ADMIN_TELEGRAM_ID
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id === ADMIN_TELEGRAM_ID && ADMIN_TELEGRAM_ID !== 0) {
                 document.getElementById('admin-secret-block').style.display = 'block';
                 populateAdminNftSelect();
@@ -385,7 +392,6 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`screen-${tabId}`).classList.add('active');
             document.getElementById(`btn-tab-${tabId}`).classList.add('active');
-
             if(tabId === 'upg') renderUpgradeSplitScreen();
             if(tabId === 'cases') initCasesCatalog();
             if(tabId === 'inv') switchSubInv('items');
@@ -414,7 +420,6 @@
                     leftContainer.appendChild(card);
                 });
             }
-
             const rightContainer = document.getElementById('upg-right-site-targets');
             rightContainer.innerHTML = '';
             NFT_ITEMS.forEach(item => {
@@ -444,7 +449,6 @@
             const targetItem = NFT_ITEMS[selectedSiteTargetId];
             if(!myItem || !targetItem) return;
             document.getElementById('ring-target-preview').src = targetItem.img;
-
             if(targetItem.price <= myItem.price) {
                 currentChance = 0;
                 document.getElementById('chance-badge-val').innerText = "ЦЕЛЬ ДОЛЖНА БЫТЬ ДОРОЖЕ";
@@ -455,538 +459,412 @@
             chance = Math.max(0.1, Math.min(95, chance));
             currentChance = chance;
             document.getElementById('chance-badge-val').innerText = `${chance.toFixed(2)}% ШАНС`;
-            drawStaticRing(chance);
+            drawStaticRing(chance / 100);
         }
 
-        function shortcutMultiplier(factor) {
-            if(selectedMyInvIndex === null || isSpinning) return;
-            const myPrice = NFT_ITEMS[inventory[selectedMyInvIndex]].price;
-            const ideal = myPrice * factor;
-            let bestMatch = NFT_ITEMS.filter(i => i.price > myPrice).reduce((prev, curr) => {
-                return Math.abs(curr.price - ideal) < Math.abs(prev.price - ideal) ? curr : prev;
-            }, NFT_ITEMS[NFT_ITEMS.length - 1]);
-            selectedSiteTargetId = bestMatch.id;
-            renderUpgradeSplitScreen();
+        function drawStaticRing(progress) {
+            if(!ringContextInit()) return;
+            ringCtx.clearRect(0, 0, 140, 140);
+            ringCtx.lineWidth = 6;
+            ringCtx.strokeStyle = "rgba(255,255,255,0.04)";
+            ringCtx.beginPath();
+            ringCtx.arc(70, 70, 62, 0, Math.PI * 2);
+            ringCtx.stroke();
+            if(progress <= 0) return;
+            let startAngle = -Math.PI / 2;
+            let endAngle = startAngle + (Math.PI * 2 * progress);
+            ringCtx.strokeStyle = "var(--neon-blue)";
+            ringCtx.shadowBlur = 8;
+            ringCtx.shadowColor = "var(--neon-blue)";
+            ringCtx.beginPath();
+            ringCtx.arc(70, 70, 62, startAngle, endAngle);
+            ringCtx.stroke();
+            ringCtx.shadowBlur = 0;
         }
 
-        function drawStaticRing(pct, currentAngle = -Math.PI/2) {
+        function ringContextInit() {
             if(!ringCanvas) {
                 ringCanvas = document.getElementById('ring-canvas');
-                if(!ringCanvas) return;
+                if(!ringCanvas) return false;
                 ringCtx = ringCanvas.getContext('2d');
             }
-            let cx = ringCanvas.width / 2;
-            let cy = ringCanvas.height / 2;
-            let r = cx - 8;
-            ringCtx.clearRect(0, 0, ringCanvas.width, ringCanvas.height);
-
-            ringCtx.beginPath();
-            ringCtx.arc(cx, cy, r, 0, Math.PI * 2);
-            ringCtx.lineWidth = 6;
-            ringCtx.strokeStyle = "#ff3355";
-            ringCtx.stroke();
-
-            if(pct > 0) {
-                ringCtx.beginPath();
-                ringCtx.arc(cx, cy, r, -Math.PI/2, (-Math.PI/2) + (Math.PI * 2 * (pct / 100)));
-                ringCtx.lineWidth = 6;
-                ringCtx.strokeStyle = "#00ff87";
-                ringCtx.stroke();
-            }
-
-            ringCtx.save();
-            ringCtx.translate(cx, cy);
-            ringCtx.rotate(currentAngle);
-            ringCtx.beginPath();
-            ringCtx.moveTo(r - 8, -6);
-            ringCtx.lineTo(r + 8, 0);
-            ringCtx.lineTo(r - 8, 6);
-            ringCtx.closePath();
-            ringCtx.fillStyle = "#ffb700";
-            ringCtx.fill();
-            ringCtx.restore();
+            return true;
         }
 
         function startUpgradeProcess() {
-            if(isSpinning || selectedMyInvIndex === null || currentChance === 0) return;
+            if(isSpinning || selectedMyInvIndex === null || currentChance <= 0) return;
             isSpinning = true;
             document.getElementById('ring-action-btn').classList.add('disabled');
+            let spinDuration = 3500;
+            let startTime = performance.now();
+            let targetRoll = Math.random();
+            let isWin = targetRoll <= (currentChance / 100);
 
-            let startTimestamp = performance.now();
-            let duration = 5000; 
-            let isWinner = (Math.random() * 100) < currentChance;
-            let totalTurnsAngle = Math.PI * 10; 
-            let winSectorSize = (Math.PI * 2) * (currentChance / 100);
-            let finalOffset = isWinner ? (Math.random() * winSectorSize) : (winSectorSize + Math.random() * (Math.PI * 2 - winSectorSize));
-            let destinationAngle = (-Math.PI / 2) + totalTurnsAngle + finalOffset;
-
-            function animationLoop(now) {
-                let elapsed = now - startTimestamp;
-                let progress = Math.min(elapsed / duration, 1);
-                let ease = 1 - Math.pow(1 - progress, 4);
-                let currentAngle = (-Math.PI / 2) + (destinationAngle - (-Math.PI / 2)) * ease;
-
-                drawStaticRing(currentChance, currentAngle);
-
-                if(progress < 1) {
-                    requestAnimationFrame(animationLoop);
+            function animate(now) {
+                let elapsed = now - startTime;
+                let t = Math.min(elapsed / spinDuration, 1);
+                let easeOut = 1 - Math.pow(1 - t, 4);
+                ringCtx.clearRect(0, 0, 140, 140);
+                ringCtx.lineWidth = 6;
+                ringCtx.strokeStyle = "rgba(255,255,255,0.04)";
+                ringCtx.beginPath();
+                ringCtx.arc(70, 70, 62, 0, Math.PI * 2);
+                ringCtx.stroke();
+                let startAngle = -Math.PI / 2;
+                let endAngle = startAngle + (Math.PI * 2 * (currentChance / 100));
+                ringCtx.strokeStyle = "var(--neon-blue)";
+                ringCtx.beginPath();
+                ringCtx.arc(70, 70, 62, startAngle, endAngle);
+                ringCtx.stroke();
+                let currentAngle = -Math.PI / 2 + (easeOut * (Math.PI * 2 * 6 + (targetRoll * Math.PI * 2)));
+                ringCtx.lineWidth = 4;
+                ringCtx.strokeStyle = "#fff";
+                ringCtx.shadowBlur = 10;
+                ringCtx.shadowColor = "#fff";
+                ringCtx.beginPath();
+                ringCtx.arc(70, 70, 62, currentAngle - 0.05, currentAngle + 0.05);
+                ringCtx.stroke();
+                ringCtx.shadowBlur = 0;
+                if(t < 1) {
+                    requestAnimationFrame(animate);
                 } else {
-                    isSpinning = false;
-                    document.getElementById('ring-action-btn').classList.remove('disabled');
-                    if(isWinner) {
-                        alert(`🔥 АПГРЕЙД ЗАШЕЛ! Получен: ${NFT_ITEMS[selectedSiteTargetId].name}`);
-                        inventory[selectedMyInvIndex] = selectedSiteTargetId;
-                    } else {
-                        alert("💀 ПРЕДМЕТ СГОРЕЛ!");
-                        inventory.splice(selectedMyInvIndex, 1);
-                    }
-                    selectedMyInvIndex = null;
-                    saveState();
-                    renderUpgradeSplitScreen();
+                    finalizeUpgrade(isWin);
                 }
             }
-            requestAnimationFrame(animationLoop);
+            requestAnimationFrame(animate);
         }
 
-        /* ================= ДВИЖОК КЕЙСОВ ================= */
-        function initCasesCatalog() {
-            document.getElementById('cases-selector-view').style.display = "grid";
-            document.getElementById('cases-arena-view').style.display = "none";
-            const v = document.getElementById('cases-selector-view');
-            v.innerHTML = '';
-            CASES.forEach(c => {
-                const n = document.createElement('div');
-                n.className = "case-card";
-                n.innerHTML = `<img src="${c.img}"><h4>${c.name}</h4><p style="color:var(--neon-gold); font-weight:bold; font-size:12px;">${c.price.toFixed(2)} TON</p>`;
-                n.onclick = () => {
-                    activeCaseId = c.id;
-                    document.getElementById('cases-selector-view').style.display = "none";
-                    document.getElementById('cases-arena-view').style.display = "flex";
-                    document.getElementById('arena-title').innerText = c.name;
-                    
-                    renderCaseLootShowcase(c.items);
-                    changeMultiCount(1);
-                };
-                v.appendChild(n);
-            });
+        function finalizeUpgrade(isWin) {
+            isSpinning = false;
+            document.getElementById('ring-action-btn').classList.remove('disabled');
+            let myItem = NFT_ITEMS[inventory[selectedMyInvIndex]];
+            let targetItem = NFT_ITEMS[selectedSiteTargetId];
+            if(isWin) {
+                inventory.splice(selectedMyInvIndex, 1);
+                inventory.push(targetItem.id);
+                triggerWinModalNode([{ name: targetItem.name, price: targetItem.price, img: targetItem.img, status: "Успешный Апгрейд!" }]);
+            } else {
+                inventory.splice(selectedMyInvIndex, 1);
+                alert(`Апгрейд сорвался! Вы потеряли ${myItem.name}`);
+            }
+            selectedMyInvIndex = null;
+            saveState();
+            renderUpgradeSplitScreen();
         }
 
-        function renderCaseLootShowcase(allowedItemIds) {
-            const container = document.getElementById('case-loot-items-row');
-            container.innerHTML = '';
-            allowedItemIds.forEach(id => {
-                const item = NFT_ITEMS[id];
-                if(!item) return;
-                let node = document.createElement('div');
-                node.className = `loot-mini-node r-${item.rarity}`;
-                node.innerHTML = `
-                    <img src="${item.img}">
-                    <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div>
-                    <div style="color:var(--neon-gold); font-weight:bold; font-size:8px;">${item.price.toFixed(1)} TON</div>
-                `;
-                container.appendChild(node);
-            });
-        }
-
-        function changeMultiCount(c) {
-            multiCount = c;
-            document.querySelectorAll('[id^="m-count-"]').forEach(b => b.classList.remove('active'));
-            document.getElementById(`m-count-${c}`).classList.add('active');
-            document.getElementById('case-action-cost').innerText = (CASES[activeCaseId].price * c).toFixed(2);
-            
-            const holder = document.getElementById('canvas-holders-container');
-            holder.className = `multi-canvas-grid grid-${c}`;
-            holder.innerHTML = '';
-
-            for(let i = 0; i < c; i++) {
-                let box = document.createElement('div');
-                box.className = "roulette-container";
-                box.innerHTML = `
-                    <div class="roulette-center-line"></div>
-                    <div class="roulette-track" id="roulette-track-${i}"></div>
-                `;
-                holder.appendChild(box);
-                generateTapeItems(i, null);
+        function shortcutMultiplier(mult) {
+            if(selectedMyInvIndex === null) return;
+            let currentItem = NFT_ITEMS[inventory[selectedMyInvIndex]];
+            let neededPrice = currentItem.price * mult;
+            let exactMatch = NFT_ITEMS.find(x => x.price >= neededPrice);
+            if(exactMatch) {
+                selectedSiteTargetId = exactMatch.id;
+                recalculateUpgradeChance();
+                renderUpgradeSplitScreen();
+            } else {
+                alert("Нет подходящей цели под такой множитель!");
             }
         }
 
-        function generateTapeItems(trackIdx, winItem) {
-            const track = document.getElementById(`roulette-track-${trackIdx}`);
+        /* ================= КЕЙСЫ ================= */
+        function initCasesCatalog() {
+            closeArenaView();
+            const root = document.getElementById('cases-selector-view');
+            root.innerHTML = '';
+            CASES.forEach(c => {
+                let card = document.createElement('div');
+                card.className = 'case-card';
+                card.innerHTML = `<img src="${c.img}"><h4>${c.name}</h4><span style="color:var(--neon-gold); font-size:11px; font-weight:bold;">${c.price.toFixed(2)} TON</span>`;
+                card.onclick = () => openArenaView(c.id);
+                root.appendChild(card);
+            });
+        }
+
+        function openArenaView(caseId) {
+            activeCaseId = caseId;
+            document.getElementById('cases-selector-view').style.display = 'none';
+            document.getElementById('cases-arena-view').style.display = 'flex';
+            let cData = CASES[caseId];
+            document.getElementById('arena-title').innerText = cData.name;
+            changeMultiCount(1);
+            let lootRow = document.getElementById('case-loot-items-row');
+            lootRow.innerHTML = '';
+            cData.items.forEach(itemId => {
+                let item = NFT_ITEMS[itemId];
+                if(item) {
+                    let node = document.createElement('div');
+                    node.className = `loot-mini-node r-${item.rarity}`;
+                    node.innerHTML = `<img src="${item.img}"><div>${item.price.toFixed(2)} TON</div>`;
+                    lootRow.appendChild(node);
+                }
+            });
+        }
+
+        function closeArenaView() {
+            document.getElementById('cases-selector-view').style.display = 'grid';
+            document.getElementById('cases-arena-view').style.display = 'none';
+        }
+
+        function changeMultiCount(count) {
+            multiCount = count;
+            document.querySelectorAll('#m-count-1, #m-count-2, #m-count-4').forEach(b => b.classList.remove('active'));
+            document.getElementById(`m-count-${count}`).classList.add('active');
+            let cost = CASES[activeCaseId].price * count;
+            document.getElementById('case-action-cost').innerText = cost.toFixed(2);
+            let holder = document.getElementById('canvas-holders-container');
+            holder.className = `multi-canvas-grid grid-${count}`;
+            holder.innerHTML = '';
+            for(let i=0; i<count; i++) {
+                let rCont = document.createElement('div');
+                rCont.className = 'roulette-container';
+                rCont.id = `r-container-${i}`;
+                rCont.innerHTML = `<div class="roulette-center-line"></div><div class="roulette-track" id="r-track-${i}"></div>`;
+                holder.appendChild(rCont);
+                populateRouletteTrack(i);
+            }
+        }
+
+        function populateRouletteTrack(trackIdx) {
+            let track = document.getElementById(`r-track-${trackIdx}`);
             if(!track) return;
             track.innerHTML = '';
-            
-            let pList = CASES[activeCaseId].items;
-            let tapeList = [];
-            
-            // 68 элементов создают иллюзию бесконечного барабана без просветов на конце
-            for(let j = 0; j < 68; j++) {
-                let item = NFT_ITEMS[pList[Math.floor(Math.random() * pList.length)]];
-                tapeList.push(item);
+            let caseItems = CASES[activeCaseId].items;
+            for(let i=0; i<45; i++) {
+                let randId = caseItems[Math.floor(Math.random() * caseItems.length)];
+                let item = NFT_ITEMS[randId];
+                let node = document.createElement('div');
+                node.className = 'roulette-item';
+                node.innerHTML = `<img src="${item.img}"><span>${item.name}</span><span class="item-cost">${item.price.toFixed(2)}</span>`;
+                node.dataset.itemId = randId;
+                track.appendChild(node);
             }
-            
-            if(winItem) {
-                tapeList[58] = winItem;
-            }
-            
-            tapeList.forEach(item => {
-                let el = document.createElement('div');
-                el.className = "roulette-item";
-                el.innerHTML = `
-                    <img src="${item.img}">
-                    <span>${item.name}</span>
-                    <span class="item-cost">${item.price.toFixed(1)} TON</span>
-                `;
-                track.appendChild(el);
-            });
         }
-
-        function closeArenaView() { initCasesCatalog(); }
 
         function triggerCaseOpening() {
-            if(document.getElementById('btn-trigger-case').classList.contains('disabled')) return;
-            
-            let cost = CASES[activeCaseId].price * multiCount;
-            if(balance < cost) { alert("Недостаточно TON!"); return; }
-            balance -= cost;
+            let totalCost = CASES[activeCaseId].price * multiCount;
+            if(balance < totalCost) { alert("Недостаточно баланса!"); return; }
+            balance -= totalCost;
             saveState();
-
             document.getElementById('btn-trigger-case').classList.add('disabled');
-            
-            let winItemsPool = [];
-            let pList = CASES[activeCaseId].items;
-            
-            for(let i = 0; i < multiCount; i++) {
-                let winningItem = NFT_ITEMS[pList[Math.floor(Math.random() * pList.length)]];
-                winItemsPool.push(winningItem);
-                
-                generateTapeItems(i, winningItem);
-                
-                let track = document.getElementById(`roulette-track-${i}`);
-                track.style.transition = "none";
-                track.style.transform = "translateX(0px)";
+            let results = [];
+            let spinDuration = 4000;
+            for(let i=0; i<multiCount; i++) {
+                let track = document.getElementById(`r-track-${i}`);
+                let caseItems = CASES[activeCaseId].items;
+                let wonItemId = caseItems[Math.floor(Math.random() * caseItems.length)];
+                results.push(NFT_ITEMS[wonItemId]);
+                let targetNodeIdx = 38; 
+                let targetNode = track.children[targetNodeIdx];
+                let item = NFT_ITEMS[wonItemId];
+                targetNode.innerHTML = `<img src="${item.img}"><span>${item.name}</span><span class="item-cost">${item.price.toFixed(2)}</span>`;
+                targetNode.dataset.itemId = wonItemId;
+                let itemWidth = 96; 
+                let containerWidth = document.getElementById(`r-container-${i}`).offsetWidth;
+                let finalX = (targetNodeIdx * itemWidth) - (containerWidth / 2) + (itemWidth / 2) + (Math.random() * 20 - 10);
+                track.style.transition = `transform ${spinDuration}ms cubic-bezier(0.1, 0.45, 0.1, 1)`;
+                track.style.transform = `translateX(-${finalX}px)`;
             }
-
             setTimeout(() => {
-                for(let i = 0; i < multiCount; i++) {
-                    let track = document.getElementById(`roulette-track-${i}`);
-                    let containerWidth = track.parentElement.clientWidth;
-                    let itemWidthWithMargin = 96; 
-                    
-                    let targetX = (58 * itemWidthWithMargin) - (containerWidth / 2) + (itemWidthWithMargin / 2) - 3;
-                    let randomInnerOffset = Math.floor(Math.random() * 40) - 20; 
-                    targetX += randomInnerOffset;
-
-                    track.style.transition = "transform 4.5s cubic-bezier(0.05, 0.7, 0.1, 1)";
-                    track.style.transform = `translateX(-${targetX}px)`;
-                }
-            }, 50);
-
-            setTimeout(() => {
-                document.getElementById('btn-trigger-case').classList.remove('disabled');
-                let modalHolder = document.getElementById('win-modal-nodes-holder');
-                modalHolder.innerHTML = '';
-
-                winItemsPool.forEach((item, index) => {
-                    inventory.push(item.id);
-                    let currentInvIndex = inventory.length - 1; 
-
-                    let node = document.createElement('div');
-                    node.className = "win-action-row";
-                    node.id = `modal-drop-row-${index}`;
-                    node.innerHTML = `
-                        <img src="${item.img}">
-                        <div class="win-action-info">
-                            <h6>${item.name}</h6>
-                            <span>${item.price.toFixed(2)} TON</span>
-                        </div>
-                        <div class="win-action-buttons">
-                            <button class="drop-choice-btn c-upg" onclick="choiceModalUpg(${currentInvIndex}, ${index})">Апгрейд</button>
-                            <button class="drop-choice-btn c-sell" onclick="choiceModalSell(${currentInvIndex}, ${item.price}, ${index})">Продать</button>
-                            <button class="drop-choice-btn c-keep" onclick="choiceModalKeep(${index})">В сумку</button>
-                        </div>
-                    `;
-                    modalHolder.appendChild(node);
-                });
-
+                results.forEach(res => inventory.push(res.id));
                 saveState();
-                document.getElementById('global-win-modal').style.display = "flex";
-            }, 4600);
+                triggerWinModalNode(results.map(x => ({ ...x, status: "Выпало из кейса" })));
+                document.getElementById('btn-trigger-case').classList.remove('disabled');
+                changeMultiCount(multiCount);
+            }, spinDuration + 400); 
         }
 
-        function choiceModalUpg(invIdx, rowIdx) {
-            document.getElementById('global-win-modal').style.display = "none";
-            selectedMyInvIndex = invIdx;
-            switchTab('upg');
-        }
-
-        function choiceModalSell(invIdx, price, rowIdx) {
-            balance += price;
-            inventory.splice(invIdx, 1);
-            saveState();
-            const row = document.getElementById(`modal-drop-row-${rowIdx}`);
-            if(row) {
-                row.style.borderLeftColor = "var(--neon-pink)";
-                row.querySelector('.win-action-buttons').innerHTML = '<span style="color:var(--neon-pink); font-size:10px; font-weight:bold;">ПРОДАНО!</span>';
-            }
-        }
-
-        function choiceModalKeep(rowIdx) {
-            const row = document.getElementById(`modal-drop-row-${rowIdx}`);
-            if(row) {
-                row.style.borderLeftColor = "var(--neon-green)";
-                row.querySelector('.win-action-buttons').innerHTML = '<span style="color:var(--neon-green); font-size:10px; font-weight:bold;">СОХРАНЕНО</span>';
-            }
-        }
-
-        function closeWinModal() { 
-            document.getElementById('global-win-modal').style.display = "none"; 
-            changeMultiCount(multiCount); 
-        }
-
-        /* ================= СУМКА ================= */
-        function switchSubInv(type) {
+        /* ================= СУМКА И КАССА ================= */
+        function switchSubInv(mode) {
             document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
-            document.getElementById(`sub-btn-${type}`).classList.add('active');
-            
-            if(type === 'items') {
-                document.getElementById('sub-screen-items').style.display = "grid";
-                document.getElementById('sub-screen-history').style.display = "none";
-                renderMainInventory();
+            if(mode === 'items') {
+                document.getElementById('sub-btn-items').classList.add('active');
+                document.getElementById('sub-screen-items').style.display = 'grid';
+                document.getElementById('sub-screen-history').style.display = 'none';
+                renderInventoryItems();
             } else {
-                document.getElementById('sub-screen-items').style.display = "none";
-                document.getElementById('sub-screen-history').style.display = "flex";
+                document.getElementById('sub-btn-history').classList.add('active');
+                document.getElementById('sub-screen-items').style.display = 'none';
+                document.getElementById('sub-screen-history').style.display = 'flex';
                 renderHistoryLogs();
             }
         }
 
-        function renderMainInventory() {
-            const g = document.getElementById('sub-screen-items');
-            g.innerHTML = '';
+        function renderInventoryItems() {
+            const root = document.getElementById('sub-screen-items');
+            root.innerHTML = '';
             if(inventory.length === 0) {
-                g.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:40px 0; font-size:12px;">Сумка пуста</div>';
+                root.innerHTML = '<p style="text-align:center; font-size:11px; color:var(--text-muted); padding-top:40px;">Твоя сумка пуста</p>';
                 return;
             }
-            inventory.forEach((id, index) => {
-                const item = NFT_ITEMS[id];
+            inventory.forEach((itemId, idx) => {
+                let item = NFT_ITEMS[itemId];
                 if(!item) return;
-                const card = document.createElement('div');
+                let card = document.createElement('div');
                 card.className = `inv-card r-${item.rarity}`;
-                card.innerHTML = `
-                    <img src="${item.img}">
-                    <div class="inv-details">
-                        <h5>${item.name}</h5>
-                        <div class="price">${item.price.toFixed(2)} TON</div>
-                    </div>
-                    <div class="inv-actions-holder">
-                        <button class="action-sub-btn" onclick="sendToUpgradeSection(${index})">⚡ Апгрейд</button>
-                        <button class="action-sub-btn" style="color:var(--neon-pink);" onclick="sellItemDirectly(${index})">💰 Продать</button>
-                        <button class="action-sub-btn btn-withdraw" onclick="withdrawItemAction(${index})">Вывести</button>
-                    </div>
-                `;
-                g.appendChild(card);
+                card.innerHTML = `<img src="${item.img}"><div class="inv-details"><h5>${item.name}</h5><span class="price">${item.price.toFixed(2)} TON</span></div><div class="inv-actions-holder"><button class="action-sub-btn" onclick="sellItemImmediate(${idx})">Продать</button><button class="action-sub-btn btn-withdraw" onclick="requestItemWithdrawal(${idx})">Вывести</button></div>`;
+                root.appendChild(card);
             });
-        }
-
-        function sendToUpgradeSection(idx) {
-            selectedMyInvIndex = idx;
-            switchTab('upg');
-        }
-
-        function sellItemDirectly(idx) {
-            let item = NFT_ITEMS[inventory[idx]];
-            if(confirm(`Продать подарок "${item.name}" за ${item.price.toFixed(2)} TON?`)) {
-                balance += item.price;
-                inventory.splice(idx, 1);
-                saveState();
-                renderMainInventory();
-            }
-        }
-
-        function withdrawItemAction(idx) {
-            let item = NFT_ITEMS[inventory[idx]];
-            if(confirm(`Вывести "${item.name}" в ваш Telegram-аккаунт?`)) {
-                if(tg) {
-                    tg.sendData(JSON.stringify({
-                        action: "withdraw_gift_request", 
-                        item_id: item.id, 
-                        item_name: item.name,
-                        price: item.price
-                    }));
-                }
-                historyLogs.unshift({
-                    name: item.name,
-                    price: item.price,
-                    date: new Date().toLocaleDateString('ru-RU') + " " + new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}),
-                    status: "В обработке"
-                });
-                inventory.splice(idx, 1);
-                saveState();
-                switchSubInv('items');
-                alert("Заявка отправлена боту!");
-            }
         }
 
         function renderHistoryLogs() {
-            const container = document.getElementById('sub-screen-history');
-            container.innerHTML = '';
+            const root = document.getElementById('sub-screen-history');
+            root.innerHTML = '';
             if(historyLogs.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:40px 0; font-size:12px;">Выводов пока не было</div>';
+                root.innerHTML = '<p style="text-align:center; font-size:11px; color:var(--text-muted); padding-top:40px;">История пуста</p>';
                 return;
             }
             historyLogs.forEach(log => {
-                let div = document.createElement('div');
-                div.className = "history-item";
-                div.innerHTML = `<div><strong>${log.name}</strong><br><span style="color:var(--text-muted); font-size:9px;">${log.date}</span></div><div style="text-align:right;"><span style="color:var(--neon-gold); font-weight:bold;">${log.price.toFixed(2)} TON</span><br><span style="color:var(--neon-blue); font-size:10px;">${log.status}</span></div>`;
-                container.appendChild(div);
+                let node = document.createElement('div');
+                node.className = 'history-item';
+                node.innerHTML = `<span>${log.name}</span><span style="color:var(--neon-gold); font-weight:bold;">${log.status}</span>`;
+                root.appendChild(node);
             });
         }
 
-        /* ================= КАССА И ОПЛАТА ================= */
+        function sellItemImmediate(idx) {
+            let item = NFT_ITEMS[inventory[idx]];
+            if(!item) return;
+            balance += item.price;
+            inventory.splice(idx, 1);
+            saveState();
+            renderInventoryItems();
+        }
+
+        function requestItemWithdrawal(idx) {
+            let item = NFT_ITEMS[inventory[idx]];
+            if(!item) return;
+            let payload = { action: "withdraw_gift_request", item_name: item.name, item_id: item.id.toString(), price: item.price.toString() };
+            if(tg) {
+                tg.sendData(JSON.stringify(payload));
+                historyLogs.push({ name: item.name, status: "В обработке" });
+                inventory.splice(idx, 1);
+                saveState();
+                renderInventoryItems();
+            } else {
+                alert("Ошибка: Доступно только внутри Telegram!");
+            }
+        }
+
+        // Изменение через ПОЛЗУНОК
         function updateDepositSliderValue() {
             let val = parseFloat(document.getElementById('cash-range-slider').value);
-            document.getElementById('deposit-amount-lbl').innerText = val;
-            let starsCalc = Math.round(val * 15);
+            document.getElementById('deposit-amount-lbl').innerText = val.toFixed(1);
+            document.getElementById('cash-text-input').value = val.toFixed(1);
+            
+            recalculateStarsPrice(val);
+        }
+
+        // Изменение через ТЕКСТОВОЕ ПОЛЕ
+        function updateDepositInputValue() {
+            let inputField = document.getElementById('cash-text-input');
+            let val = parseFloat(inputField.value);
+            
+            if (isNaN(val) || val <= 0) {
+                val = 0.1; // Страховка от пустых полей или нулей
+            }
+
+            document.getElementById('deposit-amount-lbl').innerText = val.toFixed(1);
+            
+            // Если сумма в пределах ползунка, сдвигаем его. Если больше — выставляем ползунок на максимум
+            let slider = document.getElementById('cash-range-slider');
+            if(val <= parseFloat(slider.max)) {
+                slider.value = val;
+            } else {
+                slider.value = slider.max;
+            }
+
+            recalculateStarsPrice(val);
+        }
+
+        // Рассчет стоимости Telegram Stars (1 TON ~ 15 Stars)
+        function recalculateStarsPrice(tonValue) {
+            let starsCalc = Math.ceil(tonValue * 15);
             document.getElementById('stars-cost-calculated').innerText = starsCalc;
         }
 
-        function switchPayMethod(method) {
-            chosenCurrencyMode = method;
+        function switchPayMethod(mode) {
+            chosenCurrencyMode = mode;
             document.querySelectorAll('.curr-select-btn').forEach(b => b.classList.remove('active'));
-            if(method === 'XTR') document.getElementById('pay-method-stars').classList.add('active');
-            else document.getElementById('pay-method-ton').classList.add('active');
+            if(mode === 'XTR') {
+                document.getElementById('pay-method-stars').classList.add('active');
+            } else {
+                document.getElementById('pay-method-ton').classList.add('active');
+            }
         }
 
-        f// Переменная, которая хранит выбранный метод (по дефолту Stars, меняется при клике на кнопки TON/Stars)
-let currentCurrency = "XTR"; 
+        function sendDepositInvoiceToBot() {
+            let val = parseFloat(document.getElementById('cash-text-input').value);
+            if (isNaN(val) || val < 0.1) { alert("Минимальная сумма пополнения 0.1 TON"); return; }
+            
+            let payload = { action: "deposit_request", amount: val, currency: chosenCurrencyMode };
+            if(tg) {
+                tg.sendData(JSON.stringify(payload));
+            } else {
+                alert(`Тест вне ТГ. Запрос: ${val.toFixed(1)} TON через ${chosenCurrencyMode}`);
+            }
+        }
 
-// Функция переключения вкладок TON / STARS на сайте (если у тебя есть визуальные кнопки)
-function selectCurrency(method) {
-    currentCurrency = method; // принимает "TON" или "XTR"
-    console.log("Выбран метод оплаты:", currentCurrency);
-}
+        /* ================= МОДАЛКИ И АДМИНКА ================= */
+        function triggerWinModalNode(nodesArray) {
+            let modal = document.getElementById('global-win-modal');
+            let holder = document.getElementById('win-modal-nodes-holder');
+            holder.innerHTML = '';
+            nodesArray.forEach(n => {
+                let row = document.createElement('div');
+                row.className = 'win-action-row';
+                row.innerHTML = `<img src="${n.img}"><div class="win-action-info"><h6>${n.name}</h6><span>${n.price.toFixed(2)} TON</span><div style="font-size:9px; color:#aaa; margin-top:2px;">${n.status}</div></div>`;
+                holder.appendChild(row);
+            });
+            modal.style.display = 'flex';
+        }
 
-// ГЛАВНАЯ ФУНКЦИЯ ОПЛАТЫ (Вызывается при нажатии на кнопку "Пополнить")
-function confirmDeposit() {
-    // 1. Получаем значение из инпута суммы
-    const amountInput = document.getElementById('deposit-amount');
-    if (!amountInput) {
-        alert("Ошибка: Не найден элемент ввода суммы с id='deposit-amount'");
-        return;
-    }
-    
-    const amount = parseFloat(amountInput.value);
+        function closeWinModal() {
+            document.getElementById('global-win-modal').style.display = 'none';
+        }
 
-    // 2. ПРОВЕРКА МИНИМАЛЬНОЙ СУММЫ (Вот тут менять лимит в будущем!)
-    if (isNaN(amount) || amount < 0.1) { 
-        alert("Минимальная сумма пополнения — 0.1 TON!");
-        return;
-    }
-
-    // 3. Формируем пакет данных для нашего Python-бота
-    const data = {
-        action: "deposit_request",
-        amount: amount,
-        currency: currentCurrency // Передаст "TON" или "XTR" в зависимости от выбора юзера
-    };
-
-    console.log("Отправка данных в бот:", data);
-
-    // 4. Отправляем данные в Telegram и закрываем окно сайта, чтобы бот выдал чек/реквизиты
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.sendData(JSON.stringify(data));
-        window.Telegram.WebApp.close();
-    } else {
-        alert(`Тест вне Телеграма: Запрос отправлен на сумму ${amount} ${currentCurrency}`);
-    }
-}
-
-        function requestDeposit(amount) {
-    const data = {
-        action: "deposit_request",
-        amount: amount,
-        currency: "XTR"
-    };
-    tg.sendData(JSON.stringify(data)); // Вот эта строчка связывает сайт с ботом
-    tg.close(); // Закрываем мини-апп, чтобы юзер увидел инвойс от бота
-}
-
-        /* ================= УПРАВЛЕНИЕ БАЗОЙ ДАННЫХ ================= */
         function dbInspectUserAccount() {
             let targetId = document.getElementById('db-target-tgid').value.trim();
-            if(!targetId) { alert("Сначала введи Telegram ID игрока!"); return; }
-
-            let targetBalance = localStorage.getItem(`balance_${targetId}`);
-            let targetInventoryRaw = localStorage.getItem(`inventory_${targetId}`);
-
-            if(targetBalance === null) {
-                document.getElementById('db-insp-status').innerText = "Пользователь не найден (Создана новая запись)";
-                document.getElementById('db-insp-status').style.color = "var(--neon-pink)";
-                document.getElementById('db-insp-balance').innerText = "0.00 TON";
-                document.getElementById('db-insp-inventory-chips').innerHTML = '<span style="color:var(--text-muted);">Инвентарь пуст</span>';
-                
-                localStorage.setItem(`balance_${targetId}`, "0.00");
-                localStorage.setItem(`inventory_${targetId}`, JSON.stringify([]));
-                return;
-            }
-
-            let parsedInv = JSON.parse(targetInventoryRaw || "[]");
-
-            document.getElementById('db-insp-status').innerText = `Активен (ID: ${targetId})`;
-            document.getElementById('db-insp-status').style.color = "var(--neon-green)";
-            document.getElementById('db-insp-balance').innerText = `${parseFloat(targetBalance).toFixed(2)} TON`;
-
-            const chipsHolder = document.getElementById('db-insp-inventory-chips');
+            if(!targetId) { alert("Введите Telegram ID!"); return; }
+            let tBalance = localStorage.getItem(`balance_${targetId}`) !== null ? parseFloat(localStorage.getItem(`balance_${targetId}`)) : 0.0;
+            let tInv = localStorage.getItem(`inventory_${targetId}`) !== null ? JSON.parse(localStorage.getItem(`inventory_${targetId}`)) : [];
+            document.getElementById('db-insp-status').innerText = `Профиль загружен (ID: ${targetId})`;
+            document.getElementById('db-insp-balance').innerText = `${tBalance.toFixed(2)} TON`;
+            let chipsHolder = document.getElementById('db-insp-inventory-chips');
             chipsHolder.innerHTML = '';
-
-            if(parsedInv.length === 0) {
-                chipsHolder.innerHTML = '<span style="color:var(--text-muted);">Инвентарь пуст</span>';
+            if(tInv.length === 0) {
+                chipsHolder.innerHTML = '<span style="color:#666;">Сумка пуста</span>';
             } else {
-                parsedInv.forEach(id => {
-                    let aitem = NFT_ITEMS[id];
-                    if(aitem) {
+                tInv.forEach(itemId => {
+                    let item = NFT_ITEMS[itemId];
+                    if(item) {
                         let chip = document.createElement('span');
-                        chip.className = "db-chip";
-                        chip.innerText = aitem.name;
+                        chip.className = 'db-chip';
+                        chip.innerText = item.name;
                         chipsHolder.appendChild(chip);
                     }
                 });
             }
         }
 
-        function dbModifyBalance(amount) {
+        function dbModifyBalance(offset) {
             let targetId = document.getElementById('db-target-tgid').value.trim();
             if(!targetId) { alert("Сначала введи Telegram ID игрока!"); return; }
-            
-            let currentTargetBalance = localStorage.getItem(`balance_${targetId}`) !== null ? parseFloat(localStorage.getItem(`balance_${targetId}`)) : 0.00;
-            currentTargetBalance += amount;
-            if(currentTargetBalance < 0) currentTargetBalance = 0;
-            
-            localStorage.setItem(`balance_${targetId}`, currentTargetBalance);
-            
-            if(targetId == userId) {
-                balance = currentTargetBalance;
-                saveState();
-            }
-
-            dbInspectUserAccount(); 
-            alert(`Баланс пользователя ${targetId} изменен на ${amount} TON!`);
+            let tBalance = localStorage.getItem(`balance_${targetId}`) !== null ? parseFloat(localStorage.getItem(`balance_${targetId}`)) : 0.0;
+            tBalance += offset;
+            if(tBalance < 0) tBalance = 0;
+            localStorage.setItem(`balance_${targetId}`, tBalance);
+            if(targetId == userId) { balance = tBalance; saveState(); }
+            dbInspectUserAccount();
         }
 
         function dbInjectNftToUser() {
             let targetId = document.getElementById('db-target-tgid').value.trim();
             if(!targetId) { alert("Сначала введи Telegram ID игрока!"); return; }
-
             let nftId = parseInt(document.getElementById('db-admin-nft-selector').value);
             let targetInventoryRaw = localStorage.getItem(`inventory_${targetId}`) !== null ? JSON.parse(localStorage.getItem(`inventory_${targetId}`)) : [];
-            
             targetInventoryRaw.push(nftId);
             localStorage.setItem(`inventory_${targetId}`, JSON.stringify(targetInventoryRaw));
-
-            if(targetId == userId) {
-                inventory = targetInventoryRaw;
-                saveState();
-            }
-
+            if(targetId == userId) { inventory = targetInventoryRaw; saveState(); }
             dbInspectUserAccount();
             alert(`Предмет успешно выдан игроку ${targetId}!`);
         }
@@ -994,13 +872,9 @@ function confirmDeposit() {
         function dbWipeUserInventory() {
             let targetId = document.getElementById('db-target-tgid').value.trim();
             if(!targetId) { alert("Сначала введи Telegram ID игрока!"); return; }
-
             if(confirm(`Ты уверен, что хочешь ПОЛНОСТЬЮ очистить инвентарь игрока ${targetId}?`)) {
                 localStorage.setItem(`inventory_${targetId}`, JSON.stringify([]));
-                if(targetId == userId) {
-                    inventory = [];
-                    saveState();
-                }
+                if(targetId == userId) { inventory = []; saveState(); }
                 dbInspectUserAccount();
                 alert(`Инвентарь игрока ${targetId} полностью очищен!`);
             }
@@ -1009,6 +883,7 @@ function confirmDeposit() {
         window.onload = () => {
             saveState();
             updateDepositSliderValue();
+            checkAdminAccess(); 
             if(NFT_ITEMS[selectedSiteTargetId]) document.getElementById('ring-target-preview').src = NFT_ITEMS[selectedSiteTargetId].img;
         };
     </script>
