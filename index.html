@@ -365,14 +365,20 @@
             document.getElementById('global-balance').innerText = balance.toFixed(2);
         }
 
-        function checkAdminAccess() {
-            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id === ADMIN_TELEGRAM_ID && ADMIN_TELEGRAM_ID !== 0) {
-                document.getElementById('admin-secret-block').style.display = 'block';
-                populateAdminNftSelect();
-            } else {
-                document.getElementById('admin-secret-block').style.display = 'none';
-            }
-        }
+      function checkAdminAccess() {
+    console.log("Твой реальный ID из ТГ:", tg?.initDataUnsafe?.user?.id);
+    console.log("ID админа в константе:", ADMIN_TELEGRAM_ID);
+
+    // Используем == вместо ===, чтобы не зависеть от того, строка это или число
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id == ADMIN_TELEGRAM_ID) {
+        document.getElementById('admin-secret-block').style.display = 'block';
+        populateAdminNftSelect();
+    } else {
+        // На время тестов: если всё равно не заходит, раскомментируй строку ниже, чтобы включить её принудительно:
+        // document.getElementById('admin-secret-block').style.display = 'block'; populateAdminNftSelect();
+        document.getElementById('admin-secret-block').style.display = 'none';
+    }
+}
 
         function populateAdminNftSelect() {
             const select = document.getElementById('db-admin-nft-selector');
@@ -792,17 +798,71 @@
             }
         }
 
-        function sendDepositInvoiceToBot() {
-            let val = parseFloat(document.getElementById('cash-text-input').value);
-            if (isNaN(val) || val < 0.1) { alert("Минимальная сумма пополнения 0.1 TON"); return; }
-            
-            let payload = { action: "deposit_request", amount: val, currency: chosenCurrencyMode };
-            if(tg) {
-                tg.sendData(JSON.stringify(payload));
-            } else {
-                alert(`Тест вне ТГ. Запрос: ${val.toFixed(1)} TON через ${chosenCurrencyMode}`);
-            }
+       function sendDepositInvoiceToBot() {
+    let depositAmount = parseFloat(document.getElementById('cash-range-slider').value); // Сколько ТОН хочет купить [cite: 411]
+    
+    // Проверяем, запущен ли WebApp внутри Telegram
+    if (!tg || !tg.initData) {
+        alert("Ошибка: Откройте приложение внутри Telegram бота!");
+        return;
+    }
+
+    // Отправляем запрос на твой Python бэкенд (сервер бота)
+    // ЗАМЕНИ URL НА СВОЙ (например: https://твой-домен.ru/api/create-invoice)
+    fetch('https://твой-домен-или-ip.ru/api/create-invoice', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            _auth: tg.initData, // Передаем данные авторизации для проверки безопасности на бэкенде
+            amount: depositAmount,
+            currency: chosenCurrencyMode // 'XTR' (Старсы) или 'TON' [cite: 427]
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.invoice_link) {
+            // Если бот успешно сгенерировал инвойс, открываем платежку прямо внутри WebApp!
+            tg.openInvoice(data.invoice_link, function(status) {
+                if (status === 'paid') {
+                    alert("🎉 Оплата успешно прошла! Баланс обновится в течение минуты.");
+                    // Запрашиваем актуальный баланс у бота
+                    syncBalanceWithServer();
+                } else if (status === 'cancelled') {
+                    alert("Платеж отменен.");
+                } else {
+                    alert("Ошибка при оплате или платеж обрабатывается.");
+                }
+            });
+        } else {
+            alert("Ошибка сервера: " + (data.error || "Не удалось создать инвойс"));
         }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Ошибка сети при связи с бэкендом бота.");
+    });
+}
+
+// Функция для обновления баланса с сервера, чтобы данные не брались только из localStorage
+function syncBalanceWithServer() {
+    if (!tg || !tg.initData) return;
+
+    fetch('https://твой-домен-или-ip.ru/api/get-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ _auth: tg.initData })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            balance = parseFloat(data.balance);
+            saveState(); // Обновляем цифру на экране [cite: 427]
+        }
+    })
+    .catch(err => console.error("Ошибка синхронизации баланса:", err));
+}
 
         /* ================= МОДАЛКИ И АДМИНКА ================= */
         function triggerWinModalNode(nodesArray) {
