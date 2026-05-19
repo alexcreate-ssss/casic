@@ -23,14 +23,16 @@
         /* Шапка */
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; }
         .logo { font-weight: 900; letter-spacing: 1px; font-size: 16px; background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .balance-box { display: flex; align-items: center; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; gap: 5px; box-shadow: 0 0 10px rgba(0,242,254,0.05); }
+        
+        /* Клик по балансу 3 раза откроет админку на любом устройстве */
+        .balance-box { display: flex; align-items: center; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; gap: 5px; box-shadow: 0 0 10px rgba(0,242,254,0.05); cursor: pointer; }
         .balance-box span { color: var(--neon-green); }
 
         /* Экраны */
         .screen { display: none; flex-direction: column; flex: 1; margin-bottom: 70px; }
         .screen.active { display: flex; }
 
-        /* Главная навигация */
+        /* Навигация */
         .nav-bar { position: fixed; bottom: 10px; left: 10px; right: 10px; height: 56px; background: rgba(19, 16, 34, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); border-radius: 28px; display: flex; justify-content: space-around; align-items: center; padding: 0 10px; z-index: 1000; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
         .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 10px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: 0.2s; padding: 5px 10px; }
         .tab-btn svg { width: 20px; height: 20px; fill: currentColor; transition: 0.2s; }
@@ -64,12 +66,10 @@
         .btn-upgrade-fire { background: linear-gradient(90deg, #0072ff, var(--neon-blue)); box-shadow: 0 4px 15px rgba(0,242,254,0.25); }
         .btn-upgrade-fire.disabled { background: #252136 !important; color: #575273 !important; box-shadow: none !important; cursor: not-allowed; }
         .btn-shortcut { background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.05); font-size: 11px; color: #aaa; max-width: 50px; }
-        .btn-shortcut:active { background: rgba(255,255,255,0.05); }
 
         /* Стили Кейсов */
         .catalog-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .case-card { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.03); border-radius: 14px; padding: 15px; text-align: center; transition: 0.2s; }
-        .case-card:active { transform: scale(0.97); }
         .case-card img { width: 75%; height: auto; margin-bottom: 10px; filter: drop-shadow(0 8px 12px rgba(0,0,0,0.3)); }
         .case-card h4 { font-size: 13px; margin-bottom: 4px; font-weight: bold; }
 
@@ -96,19 +96,17 @@
         .loot-preview-box { background: var(--bg-card); border-radius: 14px; padding: 12px; border: 1px solid rgba(255,255,255,0.03); }
         .loot-preview-box h5 { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: bold; letter-spacing: 0.5px; }
         .loot-items-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
-        .loot-items-row::-webkit-scrollbar { height: 2px; }
-        .loot-items-row::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
         .loot-mini-node { display: flex; flex-direction: column; align-items: center; background: var(--bg-panel); padding: 6px; border-radius: 8px; min-width: 60px; border: 1px solid rgba(255,255,255,0.03); }
         .loot-mini-node img { width: 32px; height: 32px; object-fit: contain; margin-bottom: 3px; }
         .loot-mini-node div { font-size: 7px; font-weight: bold; color: var(--neon-green); }
 
-        /* Редкости (границы) */
+        /* Редкости */
         .r-mil { border-color: rgba(0, 242, 254, 0.3) !important; }
         .r-rest { border-color: rgba(248, 87, 166, 0.3) !important; }
         .r-class { border-color: rgba(168, 85, 247, 0.4) !important; }
         .r-cov { border-color: rgba(255, 183, 0, 0.4) !important; }
 
-        /* Стили Сумки */
+        /* Сумка */
         .sub-nav-row { display: flex; background: var(--bg-card); padding: 4px; border-radius: 12px; gap: 4px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.03); }
         .sub-tab { flex: 1; height: 34px; background: none; border: none; border-radius: 8px; color: var(--text-muted); font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.15s; }
         .sub-tab.active { background: var(--bg-panel); color: #fff; }
@@ -126,7 +124,7 @@
         .history-list { display: none; flex-direction: column; gap: 6px; }
         .history-item { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
 
-        /* Стили Кассы */
+        /* Касса */
         .cash-main-panel { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.03); border-radius: 14px; padding: 15px; display: flex; flex-direction: column; margin-bottom: 15px; }
         .cash-title-block { text-align: center; margin-bottom: 15px; }
         .cash-title-block h3 { font-size: 15px; font-weight: bold; margin-bottom: 2px; }
@@ -137,50 +135,9 @@
         .curr-select-btn.active { background: var(--bg-card); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
         .curr-select-btn img { width: 16px; height: 16px; object-fit: contain; }
 
-        /* Исправленный блок инпута для ручного ввода суммы */
-        .deposit-input-wrapper { 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            background: var(--bg-panel); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 10px; 
-            padding: 0 14px; 
-            height: 48px; /* Фиксируем высоту обёртки */
-        }
-
-        .deposit-input-style { 
-            flex: 1; /* Инпут занимает всё свободное место */
-            background: transparent; 
-            border: none; 
-            height: 100%; /* Растягиваем на всю высоту обёртки */
-            margin: 0;
-            padding: 0;
-            color: #fff; 
-            font-size: 16px; /* 16px предотвращает авто-зум на iOS */
-            font-weight: bold; 
-            outline: none; 
-            -moz-appearance: textfield; 
-            user-select: text; 
-            -webkit-user-select: text; 
-        }
-
-        /* Убираем стрелочки спиннера */
-        .deposit-input-style::-webkit-outer-spin-button, 
-        .deposit-input-style::-webkit-inner-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-
-        .deposit-input-currency { 
-            font-weight: bold; 
-            color: var(--neon-green); 
-            font-size: 14px; 
-            margin-left: 8px; 
-            display: flex;
-            align-items: center;
-            height: 100%;
-        }
+        .deposit-input-wrapper { margin-bottom: 15px; display: flex; align-items: center; background: var(--bg-panel); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 0 14px; height: 48px; }
+        .deposit-input-style { flex: 1; background: transparent; border: none; height: 100%; color: #fff; font-size: 16px; font-weight: bold; outline: none; user-select: text; -webkit-user-select: text; }
+        .deposit-input-currency { font-weight: bold; color: var(--neon-green); font-size: 14px; margin-left: 8px; display: flex; align-items: center; height: 100%; }
 
         .slider-wrapper { margin-bottom: 15px; display: flex; flex-direction: column; gap: 4px; }
         .slider-info-row { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); font-weight: bold; }
@@ -196,7 +153,7 @@
 
         .btn-deposit-execute { width: 100%; height: 46px; background: linear-gradient(90deg, var(--neon-green), #00c6ff); border: none; border-radius: 12px; color: #000; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,135,0.2); }
 
-        /* Админ-панель */
+        /* Скрытая по умолчанию админка */
         .admin-secret-panel { display: none; background: #22121b; border: 1px dashed var(--neon-pink); border-radius: 14px; padding: 15px; margin-top: 10px; box-shadow: 0 0 15px rgba(248,87,166,0.1); }
         .admin-header-title { font-size: 11px; font-weight: 900; color: var(--neon-pink); letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-bottom: 12px; }
         .admin-form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
@@ -217,7 +174,7 @@
         .btn-adm-green { background: #065f46; }
         .btn-adm-red { background: #991b1b; width: 100%; grid-column: 1 / -1; }
 
-        /* Модалка Победы */
+        /* Модалка */
         .global-modal-overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(6,5,10,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
         .win-modal-card { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08); width: 100%; max-width: 300px; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative; }
         .win-modal-card h4 { font-size: 16px; font-weight: 900; background: linear-gradient(45deg, #ffe259, #ffa751); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
@@ -234,7 +191,7 @@
 
     <div class="app-header">
         <div class="logo">TON NFT ARCADE</div>
-        <div class="balance-box">
+        <div class="balance-box" id="header-balance-trigger" onclick="handleSecretAdminClick()">
             <svg width="12" height="12" viewBox="0 0 56 56" fill="none"><path d="M28 4C14.75 4 4 14.75 4 28C4 41.25 14.75 52 28 52C41.25 52 52 41.25 52 28C52 14.75 41.25 4 28 4ZM38.2 23.35L29.85 39.55C29.25 40.7 27.55 40.65 27.05 39.45L20.2 23.35C19.65 22.1 20.75 20.75 22.05 21.15L36.35 21.15C37.65 20.75 38.75 22.1 38.2 23.35Z" fill="#00f2fe"/></svg>
             <span id="global-balance">0.00</span> TON
         </div>
@@ -259,9 +216,7 @@
                     <img id="ring-target-preview" src="">
                 </div>
             </div>
-
             <div class="chance-badge" id="chance-badge-val">ВЫБЕРИТЕ ДЕПОЗИТ</div>
-
             <div class="engine-actions">
                 <button class="btn-action btn-shortcut" onclick="shortcutMultiplier(1.5)">1.5x</button>
                 <button class="btn-action btn-shortcut" onclick="shortcutMultiplier(2)">2x</button>
@@ -273,15 +228,12 @@
 
     <div id="screen-cases" class="screen">
         <div class="catalog-grid" id="cases-selector-view"></div>
-
         <div class="arena-wrapper" id="cases-arena-view">
             <div class="arena-header">
                 <button class="btn-back" onclick="closeArenaView()">← К КАТАЛОГУ</button>
                 <h4 id="arena-title" style="font-weight:900; font-size:13px;">Название кейса</h4>
             </div>
-
             <div id="canvas-holders-container"></div>
-
             <div class="arena-controls">
                 <div class="multi-selector-row">
                     <button class="m-btn active" id="m-count-1" onclick="changeMultiCount(1)">X1</button>
@@ -292,7 +244,6 @@
                     ОТКРЫТЬ ЗА <span id="case-action-cost">0.00</span> TON
                 </button>
             </div>
-
             <div class="loot-preview-box">
                 <h5>Содержимое этого кейса</h5>
                 <div class="loot-items-row" id="case-loot-items-row"></div>
@@ -313,7 +264,7 @@
         <div class="cash-main-panel">
             <div class="cash-title-block">
                 <h3>ПОПОЛНЕНИЕ БАЛАНСА</h3>
-                <p>Мгновенное зачисление средств в игровой профиль</p>
+                <p>Реальный запрос счета в диалог с ботом</p>
             </div>
 
             <div class="currency-mode-selector">
@@ -414,14 +365,13 @@
     </div>
 
     <script>
-        // Инициализация WebApp Telegram
         const tg = window.Telegram.WebApp;
         if(tg) { 
             tg.expand(); 
             tg.ready(); 
         }
 
-        // ТВОЙ ID - Изменен тип проверки на нестрогий, чтобы избежать багов кэша ТГ
+        // ТВОЙ ОФИЦИАЛЬНЫЙ ID
         const ADMIN_TELEGRAM_ID = 1101669771;
 
         const NFT_ITEMS = [
@@ -439,11 +389,12 @@
             { id: 2, name: "Durov's VIP Pack", price: 25.00, items: [3, 4, 5], img: "https://i.ibb.co/F4ccZq8Z/nft-4.webp" }
         ];
 
+        // Синхронизируем ПК и телефон за счет принудительной подстановки твоего ID при тестах в обычном браузере
         function getCurrentUserId() {
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 return tg.initDataUnsafe.user.id;
             }
-            return "default_user";
+            return ADMIN_TELEGRAM_ID; // Используем твой ID как дефолтный ключ, если зашли с ПК браузера
         }
 
         let userId = getCurrentUserId();
@@ -461,6 +412,10 @@
         let ringCanvas, ringCtx;
         let chosenCurrencyMode = 'XTR';
 
+        // Переменные для секретного открытия админки кликами
+        let secretClickCount = 0;
+        let secretClickTimeout;
+
         function saveState() {
             localStorage.setItem(`balance_${userId}`, balance);
             localStorage.setItem(`inventory_${userId}`, JSON.stringify(inventory));
@@ -470,18 +425,24 @@
             if(gBal) gBal.innerText = balance.toFixed(2);
         }
 
-        // ПРОВЕРКА ДОСТУПА В АДМИНКУ (Через нестрогое сравнение строк/чисел)
-        function checkAdminAccess() {
-            let currentTgId = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : null;
-
-            // Если совпало, или если проверяешь на ПК и хочешь включить — раскомментируй строку принудительного показа
-            if (currentTgId == ADMIN_TELEGRAM_ID && ADMIN_TELEGRAM_ID !== 0) {
-                document.getElementById('admin-secret-block').style.display = 'block';
-                populateAdminNftSelect();
+        // Секретный триггер: 3 быстрых клика по балансу открывают админку ВЕЗДЕ
+        function handleSecretAdminClick() {
+            secretClickCount++;
+            clearTimeout(secretClickTimeout);
+            
+            if (secretClickCount >= 3) {
+                const adminBlock = document.getElementById('admin-secret-block');
+                if (adminBlock.style.display === 'block') {
+                    adminBlock.style.display = 'none';
+                } else {
+                    adminBlock.style.display = 'block';
+                    populateAdminNftSelect();
+                    // Сразу подставим в поле поиска ID текущего юзера для удобства тестов
+                    document.getElementById('db-target-tgid').value = userId;
+                }
+                secretClickCount = 0;
             } else {
-                // ДЛЯ ТЕСТОВ НА ПК: если админка спряталась, сотри два слэша ниже:
-                // document.getElementById('admin-secret-block').style.display = 'block'; populateAdminNftSelect(); return;
-                document.getElementById('admin-secret-block').style.display = 'none';
+                secretClickTimeout = setTimeout(() => { secretClickCount = 0; }, 1000);
             }
         }
 
@@ -508,7 +469,6 @@
             if(tabId === 'upg') renderUpgradeSplitScreen();
             if(tabId === 'cases') initCasesCatalog();
             if(tabId === 'inv') switchSubInv('items');
-            if(tabId === 'cash') checkAdminAccess();
         }
 
         /* ================= МЕХАНИКА АПГРЕЙДА ================= */
@@ -807,7 +767,7 @@
             }, spinDuration + 400); 
         }
 
-        /* ================= ИНВЕНТАРЬ И УПРАВЛЕНИЕ СУМКОЙ ================= */
+        /* ================= ИНВЕНТАРЬ СУМКИ ================= */
         function switchSubInv(mode) {
             document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
             if(mode === 'items') {
@@ -875,15 +835,11 @@
                 saveState();
                 renderInventoryItems();
             } else {
-                alert("Успешно отправлено! (Тестовый режим)");
-                historyLogs.push({ name: item.name, status: "В обработке" });
-                inventory.splice(idx, 1);
-                saveState();
-                renderInventoryItems();
+                alert("Ошибка: вывод доступен только внутри Telegram-бота!");
             }
         }
 
-        /* ================= МЕХАНИКА КАССЫ И ПОПОЛНЕНИЯ ================= */
+        /* ================= МЕХАНИКА КАССЫ ================= */
         function updateDepositSliderValue() {
             let val = parseFloat(document.getElementById('cash-range-slider').value);
             document.getElementById('deposit-amount-lbl').innerText = val.toFixed(1);
@@ -917,15 +873,28 @@
             }
         }
 
-        // РАБОЧАЯ ФУНКЦИЯ ПОПОЛНЕНИЯ - Безопасная, без падений из-за контекста
+        // РЕАЛЬНЫЙ РЕЖИМ: Отправка JSON-пакета боту для генерации инвойса оплаты
         function sendDepositInvoiceToBot() {
             let val = parseFloat(document.getElementById('cash-text-input').value);
             if (isNaN(val) || val < 0.1) { alert("Минимальная сумма пополнения 0.1 TON"); return; }
 
-            // Локальный инкремент для стабильного теста
-            balance += val;
-            saveState();
-            alert(`🎉 Баланс успешно пополнен на +${val.toFixed(1)} TON!`);
+            let starsCost = Math.ceil(val * 15);
+
+            // Формируем полезную нагрузку для бэкенда бота
+            let payload = {
+                action: "deposit_request",
+                currency: chosenCurrencyMode, // 'XTR' или 'TON'
+                amount_ton: val.toString(),
+                amount_stars: starsCost.toString()
+            };
+
+            if (tg && tg.initData) {
+                // Отправляем JSON обратно в aiogram-бот
+                tg.sendData(JSON.stringify(payload));
+                tg.close(); // Закрываем WebApp, чтобы пользователь увидел инвойс от бота в чате
+            } else {
+                alert(`[ОШИБКА]: Запуск вне Telegram!\nБот должен получить команду:\n${JSON.stringify(payload)}`);
+            }
         }
 
         /* ================= МОДАЛКИ И АДМИН-ДВИЖОК ================= */
@@ -1010,11 +979,9 @@
             }
         }
 
-        // Стартовая сборка приложения при загрузке окна
         window.onload = () => {
             saveState();
             updateDepositSliderValue();
-            checkAdminAccess();
             if(NFT_ITEMS[selectedSiteTargetId]) document.getElementById('ring-target-preview').src = NFT_ITEMS[selectedSiteTargetId].img;
         };
     </script>
