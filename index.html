@@ -856,17 +856,49 @@
             else document.getElementById('pay-method-ton').classList.add('active');
         }
 
-        function sendDepositInvoiceToBot() {
-            let amountTON = parseFloat(document.getElementById('cash-range-slider').value);
-            if(tg) {
-                tg.sendData(JSON.stringify({
-                    action: "deposit_request",
-                    amount: amountTON,
-                    currency: chosenCurrencyMode
-                }));
-                alert(`Запрос на оплату ${amountTON} TON отправлен боту!`);
-            }
-        }
+        f// Переменная, которая хранит выбранный метод (по дефолту Stars, меняется при клике на кнопки TON/Stars)
+let currentCurrency = "XTR"; 
+
+// Функция переключения вкладок TON / STARS на сайте (если у тебя есть визуальные кнопки)
+function selectCurrency(method) {
+    currentCurrency = method; // принимает "TON" или "XTR"
+    console.log("Выбран метод оплаты:", currentCurrency);
+}
+
+// ГЛАВНАЯ ФУНКЦИЯ ОПЛАТЫ (Вызывается при нажатии на кнопку "Пополнить")
+function confirmDeposit() {
+    // 1. Получаем значение из инпута суммы
+    const amountInput = document.getElementById('deposit-amount');
+    if (!amountInput) {
+        alert("Ошибка: Не найден элемент ввода суммы с id='deposit-amount'");
+        return;
+    }
+    
+    const amount = parseFloat(amountInput.value);
+
+    // 2. ПРОВЕРКА МИНИМАЛЬНОЙ СУММЫ (Вот тут менять лимит в будущем!)
+    if (isNaN(amount) || amount < 0.1) { 
+        alert("Минимальная сумма пополнения — 0.1 TON!");
+        return;
+    }
+
+    // 3. Формируем пакет данных для нашего Python-бота
+    const data = {
+        action: "deposit_request",
+        amount: amount,
+        currency: currentCurrency // Передаст "TON" или "XTR" в зависимости от выбора юзера
+    };
+
+    console.log("Отправка данных в бот:", data);
+
+    // 4. Отправляем данные в Telegram и закрываем окно сайта, чтобы бот выдал чек/реквизиты
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.sendData(JSON.stringify(data));
+        window.Telegram.WebApp.close();
+    } else {
+        alert(`Тест вне Телеграма: Запрос отправлен на сумму ${amount} ${currentCurrency}`);
+    }
+}
 
         function requestDeposit(amount) {
     const data = {
