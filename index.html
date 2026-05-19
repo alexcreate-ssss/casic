@@ -389,12 +389,21 @@
             { id: 2, name: "Durov's VIP Pack", price: 25.00, items: [3, 4, 5], img: "https://i.ibb.co/F4ccZq8Z/nft-4.webp" }
         ];
 
-        // Синхронизируем ПК и телефон за счет принудительной подстановки твоего ID при тестах в обычном браузере
+        // НАДЁЖНЫЙ ОПРЕДЕЛИТЕЛЬ TELEGRAM-КОНТЕКСТА (фиксит ошибку «Вне телеграмма»)
+        function isInsideTelegram() {
+            if (!tg) return false;
+            // Если есть поле platform (android, ios, desktop, weba) — значит мы точно внутри приложения
+            if (tg.initDataUnsafe && tg.initDataUnsafe.platform) {
+                return true;
+            }
+            return false;
+        }
+
         function getCurrentUserId() {
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 return tg.initDataUnsafe.user.id;
             }
-            return ADMIN_TELEGRAM_ID; // Используем твой ID как дефолтный ключ, если зашли с ПК браузера
+            return ADMIN_TELEGRAM_ID; 
         }
 
         let userId = getCurrentUserId();
@@ -412,7 +421,6 @@
         let ringCanvas, ringCtx;
         let chosenCurrencyMode = 'XTR';
 
-        // Переменные для секретного открытия админки кликами
         let secretClickCount = 0;
         let secretClickTimeout;
 
@@ -425,7 +433,6 @@
             if(gBal) gBal.innerText = balance.toFixed(2);
         }
 
-        // Секретный триггер: 3 быстрых клика по балансу открывают админку ВЕЗДЕ
         function handleSecretAdminClick() {
             secretClickCount++;
             clearTimeout(secretClickTimeout);
@@ -437,7 +444,6 @@
                 } else {
                     adminBlock.style.display = 'block';
                     populateAdminNftSelect();
-                    // Сразу подставим в поле поиска ID текущего юзера для удобства тестов
                     document.getElementById('db-target-tgid').value = userId;
                 }
                 secretClickCount = 0;
@@ -828,7 +834,9 @@
             let item = NFT_ITEMS[inventory[idx]];
             if(!item) return;
             let payload = { action: "withdraw_gift_request", item_name: item.name, item_id: item.id.toString(), price: item.price.toString() };
-            if(tg && tg.initData) {
+            
+            // Заменяем tg.initData на новую функцию проверки контекста
+            if(isInsideTelegram()) {
                 tg.sendData(JSON.stringify(payload));
                 historyLogs.push({ name: item.name, status: "В обработке" });
                 inventory.splice(idx, 1);
@@ -873,25 +881,24 @@
             }
         }
 
-        // РЕАЛЬНЫЙ РЕЖИМ: Отправка JSON-пакета боту для генерации инвойса оплаты
+        // РЕАЛЬНЫЙ РЕЖИМ С ИСПРАВЛЕННОЙ ПРОВЕРКОЙ
         function sendDepositInvoiceToBot() {
             let val = parseFloat(document.getElementById('cash-text-input').value);
             if (isNaN(val) || val < 0.1) { alert("Минимальная сумма пополнения 0.1 TON"); return; }
 
             let starsCost = Math.ceil(val * 15);
 
-            // Формируем полезную нагрузку для бэкенда бота
             let payload = {
                 action: "deposit_request",
-                currency: chosenCurrencyMode, // 'XTR' или 'TON'
+                currency: chosenCurrencyMode, 
                 amount_ton: val.toString(),
                 amount_stars: starsCost.toString()
             };
 
-            if (tg && tg.initData) {
-                // Отправляем JSON обратно в aiogram-бот
+            // Теперь проверяем через надёжный isInsideTelegram()
+            if (isInsideTelegram()) {
                 tg.sendData(JSON.stringify(payload));
-                tg.close(); // Закрываем WebApp, чтобы пользователь увидел инвойс от бота в чате
+                tg.close(); 
             } else {
                 alert(`[ОШИБКА]: Запуск вне Telegram!\nБот должен получить команду:\n${JSON.stringify(payload)}`);
             }
