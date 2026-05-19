@@ -24,7 +24,6 @@
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 5px; }
         .logo { font-weight: 900; letter-spacing: 1px; font-size: 16px; background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        /* Клик по балансу 3 раза откроет админку на любом устройстве */
         .balance-box { display: flex; align-items: center; background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; gap: 5px; box-shadow: 0 0 10px rgba(0,242,254,0.05); cursor: pointer; }
         .balance-box span { color: var(--neon-green); }
 
@@ -153,7 +152,7 @@
 
         .btn-deposit-execute { width: 100%; height: 46px; background: linear-gradient(90deg, var(--neon-green), #00c6ff); border: none; border-radius: 12px; color: #000; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,135,0.2); }
 
-        /* Скрытая по умолчанию админка */
+        /* Админка */
         .admin-secret-panel { display: none; background: #22121b; border: 1px dashed var(--neon-pink); border-radius: 14px; padding: 15px; margin-top: 10px; box-shadow: 0 0 15px rgba(248,87,166,0.1); }
         .admin-header-title { font-size: 11px; font-weight: 900; color: var(--neon-pink); letter-spacing: 1px; text-transform: uppercase; text-align: center; margin-bottom: 12px; }
         .admin-form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
@@ -365,13 +364,12 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
+        const tg = window.Telegram ? window.Telegram.WebApp : null;
         if(tg) { 
             tg.expand(); 
             tg.ready(); 
         }
 
-        // ТВОЙ ОФИЦИАЛЬНЫЙ ID
         const ADMIN_TELEGRAM_ID = 1101669771;
 
         const NFT_ITEMS = [
@@ -386,18 +384,8 @@
         const CASES = [
             { id: 0, name: "Starter Notcoin Box", price: 1.50, items: [0, 1], img: "https://i.ibb.co/1GJqx9pP/nft-0.webp" },
             { id: 1, name: "Anonymous Case", price: 4.00, items: [0, 1, 2], img: "https://i.ibb.co/svg8q1H9/nft-2.webp" },
-            { id: 2, name: "Durov's VIP Pack", price: 25.00, items: [3, 4, 5], img: "https://i.ibb.co/F4ccZq8Z/nft-4.webp" }
+            { id: 2, name: "Durov's VIP Pack", price: 25.00, items: [3, 4, 5], img: "https://i.ibb.co/F4ccZq8Z/webp-4.webp" }
         ];
-
-        // НАДЁЖНЫЙ ОПРЕДЕЛИТЕЛЬ TELEGRAM-КОНТЕКСТА (фиксит ошибку «Вне телеграмма»)
-        function isInsideTelegram() {
-            if (!tg) return false;
-            // Если есть поле platform (android, ios, desktop, weba) — значит мы точно внутри приложения
-            if (tg.initDataUnsafe && tg.initDataUnsafe.platform) {
-                return true;
-            }
-            return false;
-        }
 
         function getCurrentUserId() {
             if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -835,15 +823,18 @@
             if(!item) return;
             let payload = { action: "withdraw_gift_request", item_name: item.name, item_id: item.id.toString(), price: item.price.toString() };
             
-            // Заменяем tg.initData на новую функцию проверки контекста
-            if(isInsideTelegram()) {
-                tg.sendData(JSON.stringify(payload));
-                historyLogs.push({ name: item.name, status: "В обработке" });
-                inventory.splice(idx, 1);
-                saveState();
-                renderInventoryItems();
-            } else {
-                alert("Ошибка: вывод доступен только внутри Telegram-бота!");
+            try {
+                if (tg && typeof tg.sendData === 'function') {
+                    tg.sendData(JSON.stringify(payload));
+                    historyLogs.push({ name: item.name, status: "В обработке" });
+                    inventory.splice(idx, 1);
+                    saveState();
+                    renderInventoryItems();
+                } else {
+                    throw new Error("sendData not available");
+                }
+            } catch (e) {
+                alert(`[ВНЕ ТЕЛЕГРАМА]\nБот должен получить команду вывода:\n${JSON.stringify(payload)}`);
             }
         }
 
@@ -881,7 +872,6 @@
             }
         }
 
-        // РЕАЛЬНЫЙ РЕЖИМ С ИСПРАВЛЕННОЙ ПРОВЕРКОЙ
         function sendDepositInvoiceToBot() {
             let val = parseFloat(document.getElementById('cash-text-input').value);
             if (isNaN(val) || val < 0.1) { alert("Минимальная сумма пополнения 0.1 TON"); return; }
@@ -895,16 +885,19 @@
                 amount_stars: starsCost.toString()
             };
 
-            // Теперь проверяем через надёжный isInsideTelegram()
-            if (isInsideTelegram()) {
-                tg.sendData(JSON.stringify(payload));
-                tg.close(); 
-            } else {
-                alert(`[ОШИБКА]: Запуск вне Telegram!\nБот должен получить команду:\n${JSON.stringify(payload)}`);
+            try {
+                if (tg && typeof tg.sendData === 'function') {
+                    tg.sendData(JSON.stringify(payload));
+                    tg.close(); 
+                } else {
+                    throw new Error("sendData not available");
+                }
+            } catch (e) {
+                alert(`[ОШИБКА КОНТЕКСТА]\nБот ожидает данные инвойса:\n${JSON.stringify(payload)}`);
             }
         }
 
-        /* ================= МОДАЛКИ И АДМИН-ДВИЖОК ================= */
+        /* ================= МОДАЛКИ И АДМИНКА ================= */
         function triggerWinModalNode(nodesArray) {
             let modal = document.getElementById('global-win-modal');
             let holder = document.getElementById('win-modal-nodes-holder');
