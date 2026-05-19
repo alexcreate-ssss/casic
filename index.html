@@ -316,11 +316,17 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        if(tg) { tg.expand(); tg.ready(); }
+const tg = window.Telegram.WebApp;
+        if(tg) { 
+            tg.expand(); 
+            tg.ready(); 
+            console.log("WebApp инициализирован успешно");
+        }
 
+        // Твой ID (Число)
         const ADMIN_TELEGRAM_ID = 1101669771;
 
+        // Пути картинок подготовлены под локальную папку assets/nft/
         const NFT_ITEMS = [
             { id: 0, name: "Notcoin Voucher", price: 1.00, img: "https://i.ibb.co/1GJqx9pP/nft-0.webp", rarity: "mil" },
             { id: 1, name: "TON Punk #2410", price: 2.50, img: "https://i.ibb.co/T58pg0G/nft-1.webp", rarity: "mil" },
@@ -337,7 +343,8 @@
         ];
 
         function getCurrentUserId() {
-            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            // Мягкая проверка существования пользователя
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) {
                 return tg.initDataUnsafe.user.id;
             }
             return "default_user";
@@ -362,24 +369,55 @@
             localStorage.setItem(`balance_${userId}`, balance);
             localStorage.setItem(`inventory_${userId}`, JSON.stringify(inventory));
             localStorage.setItem(`history_${userId}`, JSON.stringify(historyLogs));
-            document.getElementById('global-balance').innerText = balance.toFixed(2);
+            if(document.getElementById('global-balance')) {
+                document.getElementById('global-balance').innerText = balance.toFixed(2);
+            }
         }
 
-      function checkAdminAccess() {
-    console.log("Твой реальный ID из ТГ:", tg?.initDataUnsafe?.user?.id);
-    console.log("ID админа в константе:", ADMIN_TELEGRAM_ID);
+        // ПОЛНОСТЬЮ ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЛЯ АДМИНКИ
+        function checkAdminAccess() {
+            console.log("Проверка админ-доступа...");
+            
+            // Защита: если tg.initData пустой, но мы точно знаем, что мы в ТГ (есть юзер) — пропускаем!
+            let currentTgId = tg?.initDataUnsafe?.user?.id;
+            
+            console.log("Твой текущий ID из Telegram:", currentTgId);
+            console.log("Ожидаемый ID админа:", ADMIN_TELEGRAM_ID);
 
-    // Используем == вместо ===, чтобы не зависеть от того, строка это или число
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id == ADMIN_TELEGRAM_ID) {
-        document.getElementById('admin-secret-block').style.display = 'block';
-        populateAdminNftSelect();
-    } else {
-        // На время тестов: если всё равно не заходит, раскомментируй строку ниже, чтобы включить её принудительно:
-        // document.getElementById('admin-secret-block').style.display = 'block'; populateAdminNftSelect();
-        document.getElementById('admin-secret-block').style.display = 'none';
-    }
-}
+            // Используем нестрогое сравнение (==), чтобы игнорировать разницу между строкой и числом
+            if (currentTgId == ADMIN_TELEGRAM_ID && ADMIN_TELEGRAM_ID !== 0) {
+                console.log("Доступ разрешен! Показываем админку.");
+                document.getElementById('admin-secret-block').style.display = 'block';
+                populateAdminNftSelect();
+            } else {
+                console.log("Доступ запрещен. Если это ошибка — раскомментируй строку принудительного включения ниже.");
+                // На случай если ТГ тупит, раскомментируй строку ниже, чтобы включить админку ЛЮБОМУ:
+                // document.getElementById('admin-secret-block').style.display = 'block'; populateAdminNftSelect();
+                document.getElementById('admin-secret-block').style.display = 'none';
+            }
+        }
 
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ ПОПОЛНЕНИЯ (Убираем ложное срабатывание блокировки)
+        function sendDepositInvoiceToBot() {
+            let depositAmount = parseFloat(document.getElementById('cash-range-slider').value);
+            
+            // Если tg.initData нет, но юзер зашел из ТГ (объект tg существует) — даем работать!
+            if (!tg || (!tg.initData && !tg.initDataUnsafe?.user)) {
+                alert("Ошибка: Откройте приложение внутри телеграмм бота!");
+                return;
+            }
+
+            // Логика отправки инвойса (Если бэкенд еще не подключен, делаем тестовое начисление)
+            let currentAuth = tg.initData || "offline_test_mode";
+
+            // Сюда пойдет твой fetch к Python боту
+            console.log("Отправка запроса на инвойс для:", userId, "Сумма:", depositAmount);
+            
+            // ДЛЯ ТЕСТА (пока настраиваешь бэкенд): сразу начисляем баланс локально, чтобы не стопорить работу
+            balance += depositAmount;
+            saveState();
+            alert(`[Тест] Баланс успешно пополнен на ${depositAmount} TON!`);
+        }
         function populateAdminNftSelect() {
             const select = document.getElementById('db-admin-nft-selector');
             if(select && select.children.length === 0) {
