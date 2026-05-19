@@ -877,36 +877,32 @@
             }
         }
 
-        function sendDepositInvoiceToBot() {
-            // ЖЕСТКИЙ ПАРСИНГ АКТУАЛЬНОГО ЗНАЧЕНИЯ ИЗ ИНПУТА ДЛЯ ЗАЩИТЫ ОТ СБРОСА НА МИНИМУМ
-            let inputValStr = document.getElementById('cash-text-input').value;
-            let val = parseFloat(inputValStr);
-            
-            if (isNaN(val) || val < 0.1) { 
-                alert("Минимальная сумма пополнения 0.1 TON"); 
-                return; 
-            }
+       function sendDepositInvoiceToBot(amountTon, amountStars, currencyType) {
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
 
-            let starsCost = Math.ceil(val * 15);
+        // Формируем четкий JSON-объект с данными
+        const dataToSend = {
+            action: "deposit_request",
+            amount_ton: parseFloat(amountTon),
+            amount_stars: parseInt(amountStars),
+            currency: currencyType // "TON" или "XTR"
+        };
 
-            let payload = {
-                action: "deposit_request",
-                currency: chosenCurrencyMode, 
-                amount_ton: val.toFixed(2), // Передаем строго отформатированную строку
-                amount_stars: starsCost.toString()
-            };
+        // Превращаем в строку
+        const jsonString = JSON.stringify(dataToSend);
 
-            try {
-                if (tg && typeof tg.sendData === 'function') {
-                    tg.sendData(JSON.stringify(payload));
-                    tg.close(); 
-                } else {
-                    throw new Error("sendData not available");
-                }
-            } catch (e) {
-                alert(`[ОШИБКА КОНТЕКСТА]\nБот ожидает данные инвойса:\n${JSON.stringify(payload)}`);
-            }
-        }
+        // Используем железный метод sendInlineQuery
+        // Он отправляет строку в инлайн-режим бота, бот её ловит и выдает инвойс/кошелек
+        tg.sendInlineQuery(jsonString);
+        
+        // Закрываем WebApp, так как данные ушли в чат
+        tg.close();
+    } else {
+        alert("Ошибка: Откройте игру внутри Telegram!");
+    }
+}
+        
 
         /* ================= МОДАЛКИ И АДМИНКА ================= */
         function triggerWinModalNode(nodesArray) {
