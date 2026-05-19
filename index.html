@@ -868,6 +868,16 @@
             }
         }
 
+        function requestDeposit(amount) {
+    const data = {
+        action: "deposit_request",
+        amount: amount,
+        currency: "XTR"
+    };
+    tg.sendData(JSON.stringify(data)); // Вот эта строчка связывает сайт с ботом
+    tg.close(); // Закрываем мини-апп, чтобы юзер увидел инвойс от бота
+}
+
         /* ================= УПРАВЛЕНИЕ БАЗОЙ ДАННЫХ ================= */
         function dbInspectUserAccount() {
             let targetId = document.getElementById('db-target-tgid').value.trim();
