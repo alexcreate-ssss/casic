@@ -467,31 +467,55 @@
             }
         }
 
-        // БОТ ТЕПЕРЬ ПОЛУЧИТ JSON СТРОКУ, НО ЧЕРЕЗ БЕЗОПАСНЫЙ КАНАЛ, ЛИБО ПРОЕКЦИЮ АЛЕРТА
-        function sendDepositInvoiceToBot() {
-            let tonAmount = parseFloat(document.getElementById('cash-text-input').value) || 5.0;
-            let finalCost = currentPayMethod === 'XTR' ? Math.ceil(tonAmount * 15) : tonAmount;
-            
-            let invoicePackage = {
-                source: "arcade_cashier",
-                action: "deposit",
-                amount: tonAmount,
-                method: currentPayMethod,
-                cost: finalCost
-            };
+/* --- ИСПРАВЛЕННОЕ ПОПОЛНЕНИЕ: БЕЗ АЛЕРТОВ И БЕЗ СБОЕВ В БОТЕ --- */
+function sendDepositInvoiceToBot() {
+    let tonAmount = parseFloat(document.getElementById('cash-text-input').value) || 5.0;
+    let finalCost = currentPayMethod === 'XTR' ? Math.ceil(tonAmount * 15) : tonAmount;
+    
+    // Получаем юзернейм твоего бота динамически из ссылки Telegram, либо укажи свой вместо "bot"
+    let botUsername = tg?.initDataUnsafe?.receiver?.username || "твой_бот_username"; 
+    
+    // Формируем красивую deep-link команду для Python-бота
+    // Бот поймает это в хендлере /start (команда: deposit_XTR_75 или deposit_TON_5)
+    let startParam = `deposit_${currentPayMethod}_${finalCost}`;
+    let redirectUrl = `https://t.me/${botUsername}?start=${startParam}`;
 
-            // Чтобы бот отловил транзакцию, выводим пакет в явном виде. Python-обработчик считает его со сториджа или логов
-            alert("ACTION_DEPOSIT:" + JSON.stringify(invoicePackage));
-            
-            // Если бот настроен на мгновенное закрытие окна:
-            if (tg && tg.sendData) {
-                try {
-                    tg.sendData(JSON.stringify(invoicePackage));
-                } catch(e) {
-                    console.log("Обычный URL-режим, sendData заблокирован");
-                }
-            }
+    // Мгновенно перенаправляем игрока в чат к боту, где бот сразу пришлет инвойс
+    if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(redirectUrl);
+    } else {
+        window.location.href = redirectUrl;
+    }
+}
+
+/* --- ИСПРАВЛЕННЫЙ ВЫВОД ПРЕДМЕТОВ: БЕЗ БАГОВ И СБОЕВ --- */
+function withdrawItem(uIdx, itemId) {
+    let item = NFT_ITEMS[itemId];
+    if(!item) return;
+
+    if(confirm(`Вывести "${item.name}" на ваш TON кошелек?`)) {
+        let botUsername = tg?.initDataUnsafe?.receiver?.username || "твой_бот_username";
+        
+        // Формируем команду для бота на вывод (например: withdraw_3)
+        let startParam = `withdraw_${itemId}`;
+        let redirectUrl = `https://t.me/${botUsername}?start=${startParam}`;
+
+        // Добавляем в локальную историю
+        let list = localStorage.getItem(`wd_history_${userId}`) ? JSON.parse(localStorage.getItem(`wd_history_${userId}`)) : [];
+        list.unshift({ name: item.name, date: new Date().toLocaleTimeString(), status: "Заявка в боте" });
+        localStorage.setItem(`wd_history_${userId}`, JSON.stringify(list));
+        
+        inventory.splice(uIdx, 1);
+        saveState();
+
+        // Перекидываем в бота, чтобы скрипт одобрил транзакцию
+        if (tg && tg.openTelegramLink) {
+            tg.openTelegramLink(redirectUrl);
+        } else {
+            window.location.href = redirectUrl;
         }
+    }
+}
 
         /* --- ИСПРАВЛЕННЫЙ АПГРЕЙД: ШАРИК РЕАЛЬНО ОСТАНАВЛИВАЕТСЯ ТАМ ГДЕ ВЫПАЛО --- */
         function renderUpgradeGrids() {
