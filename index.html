@@ -467,22 +467,50 @@
             }
         }
 
-        function sendDepositInvoiceToBot() {
-            let tonAmount = parseFloat(document.getElementById('cash-text-input').value) || 5.0;
-            let finalCost = currentPayMethod === 'XTR' ? Math.ceil(tonAmount * 15) : tonAmount;
-            
-            // Динамически забираем юзернейм твоего бота из параметров запуска Telegram
-            let botUsername = tg?.initDataUnsafe?.receiver?.username || "Democasic_bot"; 
-            
-            let startParam = `deposit_${currentPayMethod}_${finalCost}`;
-            let redirectUrl = `https://t.me/${botUsername}?start=${startParam}`;
+  /* --- ИСПРАВЛЕННОЕ ПОПОЛНЕНИЕ: С ЖЕСТКИМ ЮЗЕРНЕЙМОМ БОТА --- */
+function sendDepositInvoiceToBot() {
+    let tonAmount = parseFloat(document.getElementById('cash-text-input').value) || 5.0;
+    let finalCost = currentPayMethod === 'XTR' ? Math.ceil(tonAmount * 15) : tonAmount;
+    
+    // ВПИШИ СЮДА ЮЗЕРНЕЙМ СВОЕГО БОТА БЕЗ ЗНАКА @ (например: "my_nft_arcade_bot")
+    let botUsername = "ТВОЙ_РЕАЛЬНЫЙ_ЮЗЕРНЕЙМ_БОТА"; 
+    
+    let startParam = `deposit_${currentPayMethod}_${finalCost}`;
+    let redirectUrl = `https://t.me/${botUsername}?start=${startParam}`;
 
-            if (tg && tg.openTelegramLink) {
-                tg.openTelegramLink(redirectUrl);
-            } else {
-                window.location.href = redirectUrl;
-            }
+    if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(redirectUrl);
+    } else {
+        window.location.href = redirectUrl;
+    }
+}
+
+/* --- ИСПРАВЛЕННЫЙ ВЫВОД: С ЖЕСТКИМ ЮЗЕРНЕЙМОМ БОТА --- */
+function withdrawItem(uIdx, itemId) {
+    let item = NFT_ITEMS[itemId];
+    if(!item) return;
+
+    if(confirm(`Вывести "${item.name}" на ваш TON кошелек?`)) {
+        // СЮДА ТОЖЕ ВПИШИ ЮЗЕРНЕЙМ СВОЕГО БОТА БЕЗ ЗНАКА @
+        let botUsername = "demo_casicbot"; 
+        
+        let startParam = `withdraw_${itemId}`;
+        let redirectUrl = `https://t.me/${botUsername}?start=${startParam}`;
+
+        let list = localStorage.getItem(`wd_history_${userId}`) ? JSON.parse(localStorage.getItem(`wd_history_${userId}`)) : [];
+        list.unshift({ name: item.name, date: new Date().toLocaleTimeString(), status: "Заявка в боте" });
+        localStorage.setItem(`wd_history_${userId}`, JSON.stringify(list));
+        
+        inventory.splice(uIdx, 1);
+        saveState();
+
+        if (tg && tg.openTelegramLink) {
+            tg.openTelegramLink(redirectUrl);
+        } else {
+            window.location.href = redirectUrl;
         }
+    }
+}
 
         /* --- АПГРЕЙД --- */
         function renderUpgradeGrids() {
