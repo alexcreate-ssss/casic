@@ -472,7 +472,7 @@
             let finalCost = currentPayMethod === 'XTR' ? Math.ceil(tonAmount * 15) : tonAmount;
             
             // Динамически забираем юзернейм твоего бота из параметров запуска Telegram
-            let botUsername = tg?.initDataUnsafe?.receiver?.username || "твой_бот_username"; 
+            let botUsername = tg?.initDataUnsafe?.receiver?.username || "Democasic_bot"; 
             
             let startParam = `deposit_${currentPayMethod}_${finalCost}`;
             let redirectUrl = `https://t.me/${botUsername}?start=${startParam}`;
