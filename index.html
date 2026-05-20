@@ -77,11 +77,11 @@
         .btn-back { background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 10px; color: #ccc; font-size: 11px; font-weight: bold; }
         
         .multi-canvas-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; background: var(--bg-card); padding: 15px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.03); }
-        .roulette-container { position: relative; height: 90px; background: var(--bg-main); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.04); }
+        .roulette-container { position: relative; height: 90px; background: var(--bg-main); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 5px; }
         .roulette-center-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--neon-pink); z-index: 10; box-shadow: 0 0 8px var(--neon-pink); transform: translateX(-50%); }
         .roulette-track { display: flex; position: absolute; left: 0; top: 5px; height: 80px; will-change: transform; }
         .roulette-item { width: 96px; height: 80px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; border-right: 1px solid rgba(255,255,255,0.02); background: rgba(19, 16, 34, 0.4); }
-        .roulette-item img { width: 44px; height: 44px; object-fit: contain; margin-bottom: 4px; }
+        .roulette-item img { width: 44px; height: 44px; object-fit: contain; margin-bottom: 4px; border-radius: 4px; }
         .roulette-item span { font-size: 8px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
         .roulette-item .item-cost { font-size: 7px; color: var(--neon-green); font-weight: bold; margin-top: 1px; }
 
@@ -96,7 +96,7 @@
         .loot-preview-box h5 { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; font-weight: bold; letter-spacing: 0.5px; }
         .loot-items-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
         .loot-mini-node { display: flex; flex-direction: column; align-items: center; background: var(--bg-panel); padding: 6px; border-radius: 8px; min-width: 60px; border: 1px solid rgba(255,255,255,0.03); }
-        .loot-mini-node img { width: 32px; height: 32px; object-fit: contain; margin-bottom: 3px; }
+        .loot-mini-node img { width: 32px; height: 32px; object-fit: contain; margin-bottom: 3px; border-radius: 4px; }
         .loot-mini-node div { font-size: 7px; font-weight: bold; color: var(--neon-green); }
 
         /* Редкости */
@@ -312,7 +312,7 @@
                 <input type="number" class="admin-input-native" id="db-target-tgid" placeholder="Например: 1101669771">
             </div>
             <div class="admin-inspect-results-box">
-                <div class="insp-row"><span>Статус:</span><b id="db-insp-status" style="color:#aaa;">Профиль не загружен</b></div>
+                <div class="insp-row"><span>Статус:</span><b id="db-insp-status" style="color:#aaa;">Profile Offline</b></div>
                 <div class="insp-row"><span>Баланс БД:</span><b id="db-insp-balance">0.00 TON</b></div>
                 <div style="font-size:9px; color:#aaa; margin-top:6px; font-weight:bold;">ИНВЕНТАРЬ (NFT):</div>
                 <div class="chips-list-wrapper" id="db-insp-inventory-chips"></div>
@@ -360,37 +360,40 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+        const tg = window.Telegram?.WebApp;
+        if(tg) { tg.ready(); tg.expand(); }
 
-        const userId = tg.initDataUnsafe?.user?.id || 7777777;
-        let balance = parseFloat(localStorage.getItem(`balance_${userId}`)) !== null && !isNaN(parseFloat(localStorage.getItem(`balance_${userId}`))) ? parseFloat(localStorage.getItem(`balance_${userId}`)) : 25.00;
-        let inventory = localStorage.getItem(`inventory_${userId}`) !== null ? JSON.parse(localStorage.getItem(`inventory_${userId}`)) : [0, 1];
+        const userId = tg?.initDataUnsafe?.user?.id || 7777777;
+        let balance = localStorage.getItem(`balance_${userId}`) !== null ? parseFloat(localStorage.getItem(`balance_${userId}`)) : 25.00;
+        let inventory = localStorage.getItem(`inventory_${userId}`) !== null ? JSON.parse(localStorage.getItem(`inventory_${userId}`)) : [1, 2];
+        
         let currentPayMethod = 'XTR'; 
         let adminClicksCount = 0;
+        let isUpgrading = false;
 
-        const NFT_ITEMS = [
-            { id: 0, name: "Neon Byte Cube", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=60", cost: 1.50, r: "r-mil" },
-            { id: 1, name: "Golden Glitch Card", img: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=120&auto=format&fit=crop&q=60", cost: 3.20, r: "r-rest" },
-            { id: 2, name: "Quantum Matrix Coin", img: "https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=120&auto=format&fit=crop&q=60", cost: 8.90, r: "r-class" },
-            { id: 3, name: "Ether Overlord Ring", img: "https://images.unsplash.com/photo-1644329841604-586887550f28?w=120&auto=format&fit=crop&q=60", cost: 24.50, r: "r-cov" }
-        ];
+        // 1. НАСТОЯЩИЕ НАЗВАНИЯ И ССЫЛКИ НА NFT С FRAGMENT
+        const NFT_ITEMS = {
+            1: { id: 1, name: "Satoshi Naked", collection: "TON Punks", cost: 1.50, img: "https://nft.fragment.com/tonpunks/satoshi.png", r: "r-mil" },
+            2: { id: 2, name: "Mutant #0412", collection: "MUTANT TOADS", cost: 3.20, img: "https://nft.fragment.com/toads/mutant0412.png", r: "r-rest" },
+            3: { id: 3, name: "Whale Explorer", collection: "Whales Club", cost: 8.90, img: "https://nft.fragment.com/whales/explorer.png", r: "r-class" },
+            4: { id: 4, name: "Doge Astronaut", collection: "TON Sharks", cost: 24.50, img: "https://nft.fragment.com/sharks/doge.png", r: "r-cov" },
+            5: { id: 5, name: "GigaChad King", collection: "Duels NFT", cost: 55.00, img: "https://nft.fragment.com/duels/king.png", r: "r-cov" }
+        };
 
         const CASE_CATALOG = [
-            { id: "case_mil", name: "MILITARY BOX", cost: 2.00, img: "https://cdn-icons-png.flaticon.com/512/679/679821.png", list: [0, 0, 1] },
-            { id: "case_cyber", name: "CYBERPUNK COFFER", cost: 5.00, img: "https://cdn-icons-png.flaticon.com/512/2916/2916115.png", list: [0, 1, 1, 2] },
-            { id: "case_immortal", name: "IMMORTAL VAULT", cost: 12.00, img: "https://cdn-icons-png.flaticon.com/512/3514/3514489.png", list: [1, 2, 2, 3] }
+            { id: "case_mil", name: "MILITARY BOX", cost: 2.00, img: "https://cdn-icons-png.flaticon.com/512/679/679821.png", list: [1, 1, 2] },
+            { id: "case_cyber", name: "CYBERPUNK COFFER", cost: 5.00, img: "https://cdn-icons-png.flaticon.com/512/2916/2916115.png", list: [1, 2, 2, 3] },
+            { id: "case_immortal", name: "IMMORTAL VAULT", cost: 12.00, img: "https://cdn-icons-png.flaticon.com/512/3514/3514489.png", list: [2, 3, 4, 5] }
         ];
 
         let selectedSourceInvUid = null;
-        let selectedSiteTargetId = 2; 
+        let selectedSiteTargetId = 3; 
         let activeCaseId = "case_mil";
         let activeMultiCount = 1;
 
-        // Инициализация селектора выдачи в админке
+        // Генерация админ-селектора
         const selNode = document.getElementById('db-admin-nft-selector');
-        NFT_ITEMS.forEach(x => {
+        Object.values(NFT_ITEMS).forEach(x => {
             let opt = document.createElement('option');
             opt.value = x.id; opt.innerText = `${x.name} (${x.cost} TON)`;
             selNode.appendChild(opt);
@@ -412,7 +415,7 @@
             if(tabId === 'cases') closeArenaView();
         }
 
-        /* --- КАССА И КУРСЫ --- */
+        /* --- КАССА: ПОПОЛНЕНИЕ С КУРСАМИ (Telegram Stars / TON) --- */
         function switchPayMethod(method) {
             currentPayMethod = method;
             document.querySelectorAll('.curr-select-btn').forEach(b => b.classList.remove('active'));
@@ -428,12 +431,14 @@
                 starsEstTitle.innerText = "Стоимость в Звездах";
                 starsEstSubtitle.innerText = "1 TON = 15 Звезд (Курс платформы)";
                 starsCounterNode.style.color = "#ffb700";
+                document.getElementById('stars-conversion-block').style.display = 'flex';
             } else {
                 document.getElementById('pay-method-ton').classList.add('active');
                 cashInputTitle.innerText = "Сумма пополнения";
                 starsEstTitle.innerText = "Прямой платеж TON";
                 starsEstSubtitle.innerText = "Через TON Connect или кошелек";
                 starsCounterNode.style.color = "#00f2fe";
+                document.getElementById('stars-conversion-block').style.display = 'none';
             }
             updateDepositSliderValue();
         }
@@ -463,22 +468,30 @@
             }
         }
 
+        // РАБОЧЕЕ ПОПОЛНЕНИЕ ЧЕРЕЗ БОТА
         function sendDepositInvoiceToBot() {
             let tonAmount = parseFloat(document.getElementById('cash-text-input').value) || 5.0;
             let finalCost = currentPayMethod === 'XTR' ? Math.ceil(tonAmount * 15) : tonAmount;
-            let currencyName = currentPayMethod === 'XTR' ? "Telegram Stars" : "TON";
             
-            tg.sendData(JSON.stringify({
+            let invoicePackage = {
                 source: "arcade_cashier",
-                action: "deposit_invoice",
-                amount_ton: tonAmount,
-                currency: currentPayMethod,
-                cost_calculated: finalCost
-            }));
-            alert(`Запрос отправлен! Вы пополняете на ${tonAmount} TON. Стоимость: ${finalCost} ${currencyName}`);
+                action: "deposit",
+                amount: tonAmount,
+                method: currentPayMethod,
+                cost: finalCost
+            };
+
+            if (tg) {
+                tg.sendData(JSON.stringify(invoicePackage));
+                tg.close();
+            } else {
+                alert(`[Эмуляция] Бот получил запрос на пополнение ${tonAmount} TON через ${currentPayMethod}`);
+                balance += tonAmount;
+                saveState();
+            }
         }
 
-        /* --- СИСТЕМА АПГРЕЙДОВ --- */
+        /* --- АЗАРТНЫЙ И ДОЛГИЙ АПГРЕЙД --- */
         function renderUpgradeGrids() {
             const leftGrid = document.getElementById('upg-left-my-inventory');
             leftGrid.innerHTML = "";
@@ -490,7 +503,7 @@
                     if(!item) return;
                     let div = document.createElement('div');
                     div.className = `split-card ${item.r} ${selectedSourceInvUid === uIdx ? 'selected-src' : ''}`;
-                    div.onclick = () => { selectedSourceInvUid = uIdx; calculateUpgradeChance(); renderUpgradeGrids(); };
+                    div.onclick = () => { if(!isUpgrading) { selectedSourceInvUid = uIdx; calculateUpgradeChance(); renderUpgradeGrids(); } };
                     div.innerHTML = `<img src="${item.img}"><h5>${item.name}</h5><span>${item.cost} T</span>`;
                     leftGrid.appendChild(div);
                 });
@@ -498,10 +511,10 @@
 
             const rightGrid = document.getElementById('upg-right-site-targets');
             rightGrid.innerHTML = "";
-            NFT_ITEMS.forEach(item => {
+            Object.values(NFT_ITEMS).forEach(item => {
                 let div = document.createElement('div');
                 div.className = `split-card ${item.r} ${selectedSiteTargetId === item.id ? 'selected-tar' : ''}`;
-                div.onclick = () => { selectedSiteTargetId = item.id; document.getElementById('ring-target-preview').src = item.img; calculateUpgradeChance(); renderUpgradeGrids(); };
+                div.onclick = () => { if(!isUpgrading) { selectedSiteTargetId = item.id; document.getElementById('ring-target-preview').src = item.img; calculateUpgradeChance(); renderUpgradeGrids(); } };
                 div.innerHTML = `<img src="${item.img}"><h5>${item.name}</h5><span>${item.cost} T</span>`;
                 rightGrid.appendChild(div);
             });
@@ -526,7 +539,7 @@
                 return;
             }
             let chance = (srcCost / tarCost) * 100;
-            if(chance > 95) chance = 95;
+            if(chance > 95) chance = 95; 
             badge.innerText = `ШЛЮЗ: ${chance.toFixed(1)}%`;
             btn.classList.remove('disabled');
             drawStaticRing(chance, 'var(--neon-blue)');
@@ -553,65 +566,92 @@
             if(selectedSourceInvUid === null || inventory[selectedSourceInvUid] === undefined) return;
             let srcCost = NFT_ITEMS[inventory[selectedSourceInvUid]].cost;
             let targetCostGoal = srcCost * mult;
-            let exactMatch = NFT_ITEMS.find(x => x.cost >= targetCostGoal);
-            if(!exactMatch) exactMatch = NFT_ITEMS[NFT_ITEMS.length - 1];
-            selectedSiteTargetId = exactMatch.id;
-            document.getElementById('ring-target-preview').src = exactMatch.img;
-            calculateUpgradeChance();
-            renderUpgradeGrids();
+            
+            let bestTargetId = null;
+            let closestDiff = Infinity;
+            Object.values(NFT_ITEMS).forEach(item => {
+                let diff = Math.abs(item.cost - targetCostGoal);
+                if(diff < closestDiff) { closestDiff = diff; bestTargetId = item.id; }
+            });
+
+            if(bestTargetId) {
+                selectedSiteTargetId = bestTargetId;
+                document.getElementById('ring-target-preview').src = NFT_ITEMS[bestTargetId].img;
+                calculateUpgradeChance();
+                renderUpgradeGrids();
+            }
         }
 
+        // КРУТАЯ АНИМАЦИЯ НА 4.5 СЕКУНДЫ С ЭФФЕКТОМ ЗАТУХАНИЯ РУЛЕТКИ
         function startUpgradeProcess() {
+            if(isUpgrading) return;
             if(selectedSourceInvUid === null || inventory[selectedSourceInvUid] === undefined) return;
             let srcCost = NFT_ITEMS[inventory[selectedSourceInvUid]].cost;
             let tarCost = NFT_ITEMS[selectedSiteTargetId].cost;
             if(srcCost >= tarCost) return;
 
-            let chance = (srcCost / tarCost) * 100;
-            if(chance > 95) chance = 95;
+            isUpgrading = true;
+            let chance = Math.min((srcCost / tarCost) * 100, 95);
 
             const canvas = document.getElementById('ring-canvas');
             const ctx = canvas.getContext('2d');
-            let startTime = null;
-            const duration = 2200; 
+            
+            let startTime = performance.now();
+            const duration = 4500; // 4.5 секунды томительного ожидания!
             let rollToPercent = Math.random() * 100;
             let isWin = rollToPercent <= chance;
 
             document.getElementById('ring-action-btn').classList.add('disabled');
+            document.getElementById('ring-action-btn').innerText = "КРУТИТСЯ...";
 
-            function anim(timestamp) {
-                if(!startTime) startTime = timestamp;
-                let elapsed = timestamp - startTime;
-                let progress = Math.min(elapsed / duration, 1);
-                let currentAnglePercent = progress * 360 * 3 + (rollToPercent * 3.6);
+            function anim(now) {
+                let elapsed = now - startTime;
+                let progress = elapsed / duration;
+                if(progress > 1) progress = 1;
+
+                // Эффект плавного затухания скорости (EaseOutQuad)
+                let easeOutProgress = progress * (2 - progress);
+                let totalRotations = 6 * 2 * Math.PI; 
+                let currentAngle = (totalRotations * easeOutProgress) - Math.PI / 2;
 
                 ctx.clearRect(0, 0, 140, 140);
                 ctx.lineWidth = 6;
-                ctx.strokeStyle = "rgba(255,255,255,0.03)";
+                
+                // Зона проигрыша (розовая)
+                ctx.strokeStyle = "rgba(248, 87, 166, 0.2)";
                 ctx.beginPath(); ctx.arc(70, 70, 62, 0, Math.PI*2); ctx.stroke();
 
-                ctx.strokeStyle = "var(--neon-pink)";
+                // Зона выигрыша (синяя)
+                ctx.strokeStyle = "var(--neon-blue)";
                 ctx.beginPath();
                 let sectorRad = (chance / 100) * Math.PI * 2;
                 ctx.arc(70, 70, 62, -Math.PI/2, -Math.PI/2 + sectorRad);
                 ctx.stroke();
 
-                ctx.lineWidth = 10;
-                ctx.strokeStyle = "#fff";
-                let pinRad = (currentAnglePercent * Math.PI) / 180 - Math.PI/2;
+                // Бегущий тикающий шарик-указатель
+                let pointerX = 70 + 62 * Math.cos(currentAngle);
+                let pointerY = 70 + 62 * Math.sin(currentAngle);
                 ctx.beginPath();
-                ctx.arc(70, 70, 62, pinRad - 0.05, pinRad + 0.05);
-                ctx.stroke();
+                ctx.arc(pointerX, pointerY, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = "#ffb700";
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = "#ffb700";
+                ctx.fill();
+                ctx.shadowBlur = 0; // Сброс теней
 
                 if(progress < 1) {
                     requestAnimationFrame(anim);
                 } else {
+                    isUpgrading = false;
+                    document.getElementById('ring-action-btn').classList.remove('disabled');
+                    document.getElementById('ring-action-btn').innerText = "УЛУЧШИТЬ";
+
                     inventory.splice(selectedSourceInvUid, 1);
                     if(isWin) {
                         inventory.push(selectedSiteTargetId);
                         openWinModal([{ id: selectedSiteTargetId, name: NFT_ITEMS[selectedSiteTargetId].name, img: NFT_ITEMS[selectedSiteTargetId].img, cost: NFT_ITEMS[selectedSiteTargetId].cost }]);
                     } else {
-                        alert("Апгрейд не удался! Предмет сгорел.");
+                        alert("❌ Не повезло! Апгрейд взорвался, предмет сгорел.");
                     }
                     selectedSourceInvUid = null;
                     saveState();
@@ -621,7 +661,7 @@
             requestAnimationFrame(anim);
         }
 
-        /* --- СИСТЕМА КЕЙСОВ --- */
+        /* --- КЕЙСЫ (РУЛЕТКА И МУЛЬТИОТКРЫТИЕ X1/X2/X4) --- */
         const catView = document.getElementById('cases-selector-view');
         CASE_CATALOG.forEach(c => {
             let div = document.createElement('div');
@@ -695,7 +735,6 @@
             if(balance < total) { alert("Недостаточно средств на балансе!"); return; }
 
             balance -= total;
-            document.getElementById('ring-action-btn').classList.add('disabled');
             document.getElementById('btn-trigger-case').classList.add('disabled');
 
             let winLoot = [];
@@ -711,7 +750,7 @@
                 track.style.transition = "none";
                 track.style.transform = "translateX(0px)";
                 setTimeout(() => {
-                    track.style.transition = "transform 3.5s cubic-bezier(0.1, 0.8, 0.1, 1)";
+                    track.style.transition = "transform 4.0s cubic-bezier(0.1, 0.8, 0.1, 1)";
                     let shift = -(38 * 96) + 100;
                     track.style.transform = `translateX(${shift}px)`;
                 }, 50);
@@ -719,14 +758,13 @@
 
             setTimeout(() => {
                 openWinModal(winLoot);
-                document.getElementById('ring-action-btn').classList.remove('disabled');
                 document.getElementById('btn-trigger-case').classList.remove('disabled');
                 saveState();
                 changeMultiCount(activeMultiCount);
-            }, 3700);
+            }, 4200);
         }
 
-        /* --- СУМКА И ИНВЕНТАРЬ --- */
+        /* --- СУМКА: РАБОЧИЙ ВЫВОД ПРЕДМЕТОВ ЧЕРЕЗ БОТА --- */
         function renderInventoryGrid() {
             const view = document.getElementById('sub-screen-items');
             view.innerHTML = "";
@@ -739,7 +777,7 @@
                 if(!item) return;
                 let div = document.createElement('div');
                 div.className = `inv-card ${item.r}`;
-                div.innerHTML = `<img src="${item.img}"><div class="inv-details"><h5>${item.name}</h5><div class="price">${item.cost} TON</div></div><div class="inv-actions-holder"><button class="action-sub-btn" onclick="sellItem(${uIdx})">ПРОДАТЬ</button><button class="action-sub-btn btn-withdraw" onclick="withdrawItem(${uIdx})">ВЫВОД</button></div>`;
+                div.innerHTML = `<img src="${item.img}"><div class="inv-details"><h5>${item.name}</h5><div class="price">${item.cost} TON</div></div><div class="inv-actions-holder"><button class="action-sub-btn" onclick="sellItem(${uIdx})">ПРОДАТЬ</button><button class="action-sub-btn btn-withdraw" onclick="withdrawItem(${uIdx}, ${itemId})">ВЫВОД</button></div>`;
                 view.appendChild(div);
             });
         }
@@ -765,14 +803,35 @@
             saveState();
         }
 
-        function withdrawItem(uIdx) {
-            let itemId = inventory[uIdx];
-            let list = localStorage.getItem(`wd_history_${userId}`) ? JSON.parse(localStorage.getItem(`wd_history_${userId}`)) : [];
-            list.unshift({ name: NFT_ITEMS[itemId].name, date: new Date().toLocaleTimeString(), status: "Обработка" });
-            localStorage.setItem(`wd_history_${userId}`, JSON.stringify(list));
-            inventory.splice(uIdx, 1);
-            saveState();
-            alert("Заявка на вывод создана! Статус в истории.");
+        // РАБОЧИЙ ВЫВОД: передает JSON пакет данных вашему боту
+        function withdrawItem(uIdx, itemId) {
+            let item = NFT_ITEMS[itemId];
+            if(!item) return;
+
+            let withdrawPackage = {
+                source: "arcade_inventory",
+                action: "withdraw",
+                nft_id: itemId,
+                name: item.name,
+                index: uIdx
+            };
+
+            if(confirm(`Вывести "${item.name}" на ваш TON кошелек?`)) {
+                if(tg) {
+                    tg.sendData(JSON.stringify(withdrawPackage));
+                    inventory.splice(uIdx, 1);
+                    saveState();
+                    alert("Заявка отправлена боту!");
+                    tg.close();
+                } else {
+                    alert(`[Эмуляция] Пакет вывода отправлен: ${item.name}`);
+                    let list = localStorage.getItem(`wd_history_${userId}`) ? JSON.parse(localStorage.getItem(`wd_history_${userId}`)) : [];
+                    list.unshift({ name: item.name, date: new Date().toLocaleTimeString(), status: "Обработка" });
+                    localStorage.setItem(`wd_history_${userId}`, JSON.stringify(list));
+                    inventory.splice(uIdx, 1);
+                    saveState();
+                }
+            }
         }
 
         function renderHistory() {
@@ -800,7 +859,7 @@
         }
         function closeWinModal() { document.getElementById('win-modal-overlay').style.display = "none"; }
 
-        /* --- АДМИН-ПАНЕЛЬ (ХОСТ) --- */
+        /* --- АДМИН-ПАНЕЛЬ --- */
         function handleSecretAdminClick() {
             adminClicksCount++;
             if(adminClicksCount >= 6) {
